@@ -74,7 +74,7 @@
 }
 
 /* TipTap Editor Styles */
-.rich-text-content .ProseMirror {
+.rich-text-content.ProseMirror {
   min-height: 200px;
   outline: none;
   font-family: inherit;
@@ -82,7 +82,7 @@
   line-height: 1.6;
 }
 
-.rich-text-content .ProseMirror p.is-editor-empty:first-child::before {
+.rich-text-content.ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
   color: var(--text-muted);
@@ -90,17 +90,17 @@
   height: 0;
 }
 
-.rich-text-content .ProseMirror p {
+.rich-text-content.ProseMirror p {
   margin-bottom: 0.75rem;
 }
 
-.rich-text-content .ProseMirror ul,
-.rich-text-content .ProseMirror ol {
+.rich-text-content.ProseMirror ul,
+.rich-text-content.ProseMirror ol {
   padding-left: 1.5rem;
   margin-bottom: 0.75rem;
 }
 
-.rich-text-content .ProseMirror blockquote {
+.rich-text-content.ProseMirror blockquote {
   border-left: 3px solid var(--accent);
   margin: 1.5rem 0;
   padding-left: 1rem;
@@ -108,7 +108,7 @@
   font-style: italic;
 }
 
-.rich-text-content .ProseMirror code {
+.rich-text-content.ProseMirror code {
   background-color: var(--bg-elevated);
   padding: 0.1rem 0.3rem;
   border-radius: var(--radius-sm);
@@ -116,7 +116,7 @@
   font-size: 0.9em;
 }
 
-.rich-text-content .ProseMirror mark {
+.rich-text-content.ProseMirror mark {
   background-color: rgba(255, 204, 0, 0.3);
   color: inherit;
   padding: 0 2px;
