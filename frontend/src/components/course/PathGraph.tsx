@@ -18,8 +18,6 @@ export default function PathGraph({ lessons, courseId, completedLessons }: Props
   const cx = SVG_WIDTH / 2;
   const amp = 140; // horizontal amplitude
 
-  // Group lessons by their 'phase' string
-  const sections: { id: number; y: number; label: string }[] = [];
   let currentSectionIndex = 0;
   let currentPhase = "Phase 1";
   

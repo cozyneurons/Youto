@@ -2,9 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import React from 'react';
 import { notesService } from '../../services/notesService';
 import { NOTES_AUTOSAVE_DELAY_MS } from '../../utils/constants';
-import { seekVideo, timeToSeconds } from '../../utils/videoControl';
-
 import { courseService } from '../../services/courseService';
+import RichTextEditor from './RichTextEditor';
+import { renderRichTextWithTimestamps } from '../../utils/timestampParser';
 
 interface Props {
   lessonId: number;
@@ -19,27 +19,6 @@ function debounce<T extends (...args: any[]) => void>(fn: T, ms: number) {
   };
 }
 
-function renderWithTimestamps(text: string | null | undefined) {
-  if (!text) return null;
-  // Match timestamps like MM:SS or HH:MM:SS
-  const regex = /(\b\d{1,2}:\d{2}(?::\d{2})?\b)/g;
-  const parts = text.split(regex);
-  return parts.map((part, i) => {
-    if (regex.test(part)) {
-      return (
-        <button
-          key={i}
-          className="timestamp-btn"
-          onClick={() => seekVideo(timeToSeconds(part))}
-          title="Jump to this time"
-        >
-          {part}
-        </button>
-      );
-    }
-    return <React.Fragment key={i}>{part}</React.Fragment>;
-  });
-}
 
 export default function NotesPanel({ lessonId, summary: initialSummary }: Props) {
   const [notes, setNotes] = useState('');
@@ -67,10 +46,10 @@ export default function NotesPanel({ lessonId, summary: initialSummary }: Props)
     [lessonId],
   );
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setNotes(e.target.value);
+  const handleChange = (value: string) => {
+    setNotes(value);
     setSaved(false);
-    debouncedSave(e.target.value);
+    debouncedSave(value);
   };
 
   const handleGenerateSummary = async () => {
@@ -118,22 +97,20 @@ export default function NotesPanel({ lessonId, summary: initialSummary }: Props)
       </div>
 
       {tab === 'edit' ? (
-        <textarea
-          id="lesson-notes"
-          className="notes-textarea"
-          value={notes}
-          onChange={handleChange}
-          placeholder="Write your notes here… (auto-saved)"
-          spellCheck
-        />
+        <div className="notes-textarea" style={{ padding: 0, overflow: 'hidden' }}>
+          <RichTextEditor
+            value={notes}
+            onChange={handleChange}
+          />
+        </div>
       ) : tab === 'view' ? (
         <div className="notes-view summary-text" style={{ whiteSpace: 'pre-wrap' }}>
-          {notes ? renderWithTimestamps(notes) : <span style={{ color: 'var(--text-muted)' }}>No notes yet. Switch to Edit to write some!</span>}
+          {notes ? renderRichTextWithTimestamps(notes) : <span style={{ color: 'var(--text-muted)' }}>No notes yet. Switch to Edit to write some!</span>}
         </div>
       ) : (
         <div className="summary-text" style={{ whiteSpace: 'pre-wrap' }}>
           {summary ? (
-            renderWithTimestamps(summary)
+            renderRichTextWithTimestamps(summary)
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', textAlign: 'center' }}>
               <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>No AI summary has been generated for this video yet.</p>
