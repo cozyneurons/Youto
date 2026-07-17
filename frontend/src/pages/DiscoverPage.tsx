@@ -57,8 +57,7 @@ export default function DiscoverPage() {
           <div className="discover-hero-icon"></div>
           <h1 className="page-title">Discover the Best Course</h1>
           <p className="page-subtitle">
-            Enter a topic and skill level — we'll cross-reference Reddit community sentiment
-            with YouTube playlists and use AI to surface the absolute best course for you.
+            Enter a topic and skill level to find the best course.
           </p>
         </header>
 
