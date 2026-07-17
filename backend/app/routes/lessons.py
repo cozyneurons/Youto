@@ -66,7 +66,17 @@ def generate_lesson_summary(
         raise HTTPException(status_code=404, detail="Lesson not found")
 
     if not lesson.transcript:
-        raise HTTPException(status_code=400, detail="No transcript available to summarize.")
+        # If the background task hasn't finished or failed, try to fetch it synchronously
+        from app.services.youtube_service import get_captions, extract_video_id_from_url
+        video_id = extract_video_id_from_url(lesson.video_url)
+        if video_id:
+            transcript = get_captions(video_id)
+            if transcript:
+                lesson.transcript = transcript
+                db.commit()
+
+    if not lesson.transcript:
+        raise HTTPException(status_code=400, detail="No transcript available to summarize. The video might not have English captions.")
 
     # 2 hours = 7200 seconds. 
     # If the video is longer, we reject summarization to preserve tokens/costs.

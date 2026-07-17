@@ -77,29 +77,15 @@ def extract_video_metadata(url: str) -> Dict[str, Any]:
 
 def get_captions(video_id: str) -> str:
     """
-    Attempt to fetch auto-generated English captions for a video.
-    Returns the raw VTT/SRT text, or an empty string if unavailable.
+    Attempt to fetch auto-generated English captions for a video using youtube-transcript-api.
+    Returns the raw text, or an empty string if unavailable.
     """
-    url = f"https://www.youtube.com/watch?v={video_id}"
-    ydl_opts = {
-        "quiet": True,
-        "no_warnings": True,
-        "skip_download": True,
-        "writeautomaticsub": True,
-        "subtitleslangs": ["en", "en-US"],
-        "subtitlesformat": "vtt",
-    }
-
     try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=False) or {}
-            auto_captions: Dict = info.get("automatic_captions") or {}
-            for lang_key in ("en", "en-US", "en-GB"):
-                subs = auto_captions.get(lang_key, [])
-                for sub in subs:
-                    if sub.get("ext") in ("vtt", "srv3", "srv2", "srv1", "json3"):
-                        return sub.get("url", "")
-        return ""
+        from youtube_transcript_api import YouTubeTranscriptApi
+        transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+        transcript = transcript_list.find_transcript(['en', 'en-US', 'en-GB'])
+        data = transcript.fetch()
+        return " ".join([t['text'] for t in data]).replace("\n", " ")
     except Exception as exc:
         logger.warning("Caption extraction failed for %s: %s", video_id, exc)
         return ""
