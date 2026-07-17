@@ -78,12 +78,21 @@ def extract_video_metadata(url: str) -> Dict[str, Any]:
 def get_captions(video_id: str) -> str:
     """
     Attempt to fetch auto-generated English captions for a video using youtube-transcript-api.
-    Returns the raw text, or an empty string if unavailable.
+    If English isn't natively available, it fetches the first available transcript and translates it.
+    Returns the raw text, or an empty string if unavailable or rate-limited.
     """
     try:
         from youtube_transcript_api import YouTubeTranscriptApi
         transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
-        transcript = transcript_list.find_transcript(['en', 'en-US', 'en-GB'])
+        
+        try:
+            # Try to get native english first
+            transcript = transcript_list.find_transcript(['en', 'en-US', 'en-GB'])
+        except Exception:
+            # Fallback: get the first available transcript and translate it to English
+            first_available = next(iter(transcript_list))
+            transcript = first_available.translate('en')
+
         data = transcript.fetch()
         return " ".join([t['text'] for t in data]).replace("\n", " ")
     except Exception as exc:
