@@ -12,8 +12,9 @@ Convert any YouTube playlist into a structured course with a curvy path UI, vide
 | Database | PostgreSQL 16 |
 | Cache | Redis 7 |
 | Queue | Celery |
-| AI | Google Gemini (transcript summarization) |
-| Video | yt-dlp (playlist extraction) |
+| AI | Google Gemini (transcript summarization & recommendations) |
+| Video | yt-dlp (playlist extraction) & YouTube Data API v3 |
+| Sentiment | Arctic Shift (PullPush) for historical Reddit data |
 | Auth | JWT + bcrypt |
 | Deploy | Oracle Cloud VM + Netlify + Docker |
 
@@ -89,7 +90,8 @@ npm run dev
 | `DATABASE_URL` | PostgreSQL connection string | `postgresql://postgres:postgres@localhost:5432/youto` |
 | `REDIS_URL` | Redis connection string | `redis://localhost:6379` |
 | `SECRET_KEY` | JWT signing secret | *(required)* |
-| `GEMINI_API_KEY` | Google Gemini API key | *(required for summaries)* |
+| `YOUTUBE_API_KEY` | YouTube Data API v3 Key | *(required for Discover page)* |
+| `GEMINI_API_KEY` | Google Gemini API key | *(required for summaries and AI recommendations)* |
 | `ALLOWED_ORIGINS` | CORS origins (JSON array) | `["http://localhost:5173"]` |
 
 ## Architecture
