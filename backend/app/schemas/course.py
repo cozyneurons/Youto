@@ -10,6 +10,7 @@ class CourseCreate(BaseModel):
     youtube_url: str
     thumbnail_url: str | None = None
     total_duration: int | None = None
+    deadline: datetime | None = None
 
 
 class CourseUpdate(BaseModel):
@@ -18,6 +19,7 @@ class CourseUpdate(BaseModel):
     youtube_url: str | None = None
     thumbnail_url: str | None = None
     total_duration: int | None = None
+    deadline: datetime | None = None
 
 
 class CourseResponse(BaseModel):
@@ -29,6 +31,7 @@ class CourseResponse(BaseModel):
     youtube_url: str | None = None
     thumbnail_url: str | None = None
     total_duration: int | None = None
+    deadline: datetime | None = None
     created_by: int | None = None
     created_at: datetime | None = None
 

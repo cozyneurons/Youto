@@ -13,6 +13,7 @@ class Course(Base):
     youtube_url = Column(String)
     thumbnail_url = Column(String)
     total_duration = Column(Integer)  # seconds
+    deadline = Column(DateTime)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 

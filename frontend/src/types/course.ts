@@ -5,6 +5,7 @@ export interface Course {
   youtube_url: string | null;
   thumbnail_url: string | null;
   total_duration: number | null;
+  deadline: string | null;
   created_by: number | null;
   created_at: string | null;
   lessons?: Lesson[];

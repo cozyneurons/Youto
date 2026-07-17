@@ -15,6 +15,7 @@ interface CourseState {
   clearCurrent: () => void;
   renameCourse: (id: number, newTitle: string) => Promise<void>;
   deleteCourse: (id: number) => Promise<void>;
+  updateCourseDeadline: (id: number, deadline: string | null) => Promise<void>;
 }
 
 export const useCourseStore = create<CourseState>((set) => ({
@@ -76,6 +77,18 @@ export const useCourseStore = create<CourseState>((set) => ({
       }));
     } catch (e: any) {
       console.error("Delete failed", e);
+    }
+  },
+
+  updateCourseDeadline: async (id, deadline) => {
+    try {
+      const updated = await courseService.updateCourse(id, { deadline });
+      set((state) => ({
+        courses: state.courses.map((c) => (c.id === id ? { ...c, deadline: updated.deadline } : c)),
+        currentCourse: state.currentCourse?.id === id ? { ...state.currentCourse, deadline: updated.deadline } : state.currentCourse,
+      }));
+    } catch (e: any) {
+      console.error("Update deadline failed", e);
     }
   },
 }));
