@@ -31,9 +31,9 @@ Convert any YouTube playlist into a structured course with a curvy path UI, vide
 git clone <repo>
 cd youtube-course-converter
 
-# Backend env
-cp backend/.env.example backend/.env
-# Edit backend/.env and fill in GEMINI_API_KEY, SECRET_KEY
+# Set up root environment variables for Docker Compose
+cp backend/.env.example .env
+# Edit .env and fill in YOUTUBE_API_KEY, GEMINI_API_KEY, and SECRET_KEY
 ```
 
 ### 2. Start all services with Docker Compose
@@ -83,7 +83,7 @@ npm run dev
 
 ## Environment Variables
 
-### Backend (`backend/.env`)
+### Project Root (`.env`) for Docker Compose
 
 | Variable | Description | Default |
 |----------|-------------|---------|
