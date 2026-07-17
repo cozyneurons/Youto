@@ -2,18 +2,27 @@
 
 Convert any YouTube playlist into a structured course with a curvy path UI, video player, and per-lesson notes.
 
+## Features
+
+- **Rich Text Note-Taking**: A fully-featured WYSIWYG editor (powered by TipTap) for taking complex notes with formatting, lists, highlights, and inline code.
+- **Interactive Timestamps**: Type a timestamp (e.g. `01:23`) in your notes, and it automatically becomes a clickable button that jumps the video to that exact moment—even if it's styled or highlighted!
+- **AI Video Summaries**: Leverage Google's ultra-fast **Gemini 3.1 Flash Lite** model to instantly generate comprehensive summaries for YouTube videos, handling transcripts up to 100k characters.
+- **Robust Transcript Fetching**: Uses `youtube-transcript-api` for fast caption retrieval, with an automatic `yt-dlp` fallback to bypass consent walls and download JSON3 subtitles.
+- **Curvy Path UI**: Visualize your course progress along a beautifully animated, winding SVG path. The dotted line dynamically turns green up to your currently active video!
+- **Course Discovery**: Find new courses with sentiment analysis backed by historical Reddit data (Arctic Shift).
+
 ## Stack
 
 | Layer | Tech |
 |-------|------|
-| Frontend | React 18 + Vite + TypeScript + Tailwind CSS |
+| Frontend | React 18 + Vite + TypeScript + Tailwind CSS + TipTap |
 | State | Zustand |
 | Backend | FastAPI (Python 3.11) |
 | Database | PostgreSQL 16 |
 | Cache | Redis 7 |
 | Queue | Celery |
-| AI | Google Gemini (transcript summarization & recommendations) |
-| Video | yt-dlp (playlist extraction) & YouTube Data API v3 |
+| AI | Google Gemini 3.1 Flash Lite (summarization & recommendations) |
+| Video | yt-dlp, youtube-transcript-api, & YouTube Data API v3 |
 | Sentiment | Arctic Shift (PullPush) for historical Reddit data |
 | Auth | JWT + bcrypt |
 | Deploy | Oracle Cloud VM + Netlify + Docker |
