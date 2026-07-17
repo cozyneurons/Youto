@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Trophy, Zap, Lightbulb, PlayCircle, Search } from 'lucide-react';
 import Navbar from '../components/common/Navbar';
 import { recommendationService, type Recommendation } from '../services/recommendationService';
 import { uploadService } from '../services/uploadService';
@@ -55,7 +54,7 @@ export default function DiscoverPage() {
       <main className="container discover-main">
         {/* Hero */}
         <header className="discover-hero">
-          <div className="discover-hero-icon"><Search className="w-8 h-8" /></div>
+          <div className="discover-hero-icon"></div>
           <h1 className="page-title">Discover the Best Course</h1>
           <p className="page-subtitle">
             Enter a topic and skill level — we'll cross-reference Reddit community sentiment
@@ -117,7 +116,7 @@ export default function DiscoverPage() {
             {isLoading ? (
               <><span className="spinner-sm" /> Searching for the best courses…</>
             ) : (
-              <><Sparkles className="w-4 h-4 inline-block mr-2" /> Find Best Course</>
+              'Find Best Course'
             )}
           </button>
         </form>
@@ -141,7 +140,7 @@ export default function DiscoverPage() {
         {recommendation && !isLoading && (
           <div className="recommendation-card">
             <div className={`recommendation-badge ${recommendation._no_gemini ? 'recommendation-badge-fallback' : ''}`}>
-              {recommendation._no_gemini ? <><PlayCircle className="w-4 h-4 inline mr-1" /> Top YouTube Result</> : <><Trophy className="w-4 h-4 inline mr-1" /> AI Recommendation</>}
+              {recommendation._no_gemini ? 'Top YouTube Result' : 'AI Recommendation'}
             </div>
 
             <div className="recommendation-body">
@@ -160,12 +159,12 @@ export default function DiscoverPage() {
                   <p className="recommendation-justification">{recommendation.justification}</p>
                 )}
                 {recommendation._no_gemini && (
-                  <p className="no-gemini-notice"><Zap className="w-4 h-4 inline mr-1" /> Add a <code>GEMINI_API_KEY</code> to get AI-powered reasoning that cross-references community votes.</p>
+                  <p className="no-gemini-notice">Add a <code>GEMINI_API_KEY</code> to get AI-powered reasoning that cross-references community votes.</p>
                 )}
 
                 {recommendation.reddit_signals && recommendation.reddit_signals.length > 0 && (
                   <div className="reddit-signals">
-                    <span className="reddit-signals-label"><Lightbulb className="w-4 h-4 inline mr-1" /> Community Insights:</span>
+                    <span className="reddit-signals-label">Community Insights:</span>
                     <ul>
                       {recommendation.reddit_signals.map((sig, i) => (
                         <li key={i}>{sig}</li>
@@ -175,7 +174,7 @@ export default function DiscoverPage() {
                 )}
 
                 {recommendation._cached && (
-                  <span className="cache-badge"><Zap className="w-3 h-3 inline mr-1" /> Cached result</span>
+                  <span className="cache-badge">Cached result</span>
                 )}
 
                 <div className="recommendation-actions">
