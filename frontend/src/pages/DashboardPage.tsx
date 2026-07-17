@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import Navbar from '../components/common/Navbar';
 import CourseGrid from '../components/dashboard/CourseGrid';
-import RecentActivity from '../components/dashboard/RecentActivity';
 import Loading from '../components/common/Loading';
 import { useCourseStore } from '../store/courseStore';
 import { Link } from 'react-router-dom';
@@ -28,7 +27,6 @@ export default function DashboardPage() {
           <Loading text="Loading your courses…" />
         ) : (
           <>
-            <RecentActivity courses={courses} />
             <CourseGrid courses={courses} />
           </>
         )}
