@@ -94,10 +94,16 @@
   margin-bottom: 0.75rem;
 }
 
-.rich-text-content.ProseMirror ul,
+.rich-text-content.ProseMirror ul {
+  padding-left: 1.5rem;
+  margin-bottom: 0.75rem;
+  list-style-type: disc;
+}
+
 .rich-text-content.ProseMirror ol {
   padding-left: 1.5rem;
   margin-bottom: 0.75rem;
+  list-style-type: decimal;
 }
 
 .rich-text-content.ProseMirror blockquote {
