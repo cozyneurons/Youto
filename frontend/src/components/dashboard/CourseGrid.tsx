@@ -50,15 +50,8 @@ function CourseCard({ course }: { course: Course }) {
   const isOverdue = course.deadline && course.deadline < todayStr;
 
   return (
-    <Link to={`/course/${course.id}`} className="course-card" id={`course-card-${course.id}`} style={{ position: 'relative' }}>
-      <div style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 10, display: 'flex', gap: '4px' }}>
-        <div className="course-card-calendar" onClick={(e) => e.preventDefault()}>
-          <DatePicker 
-            aria-label="Set Deadline"
-            value={course.deadline ? parseDate(course.deadline.split('T')[0]) : null}
-            onChange={handleDateChange}
-          />
-        </div>
+    <div className="course-card" id={`course-card-${course.id}`} style={{ display: 'flex', flexDirection: 'column', position: 'relative' }}>
+      <div style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 10 }}>
         <button
           className="course-card-menu-btn"
           style={{ position: 'static' }}
@@ -76,27 +69,40 @@ function CourseCard({ course }: { course: Course }) {
         </div>
       )}
 
-      <div className="course-card-thumb">
-        {course.thumbnail_url ? (
-          <img src={course.thumbnail_url} alt={course.title} loading="lazy" />
-        ) : (
-          <div className="course-card-thumb-placeholder">Course</div>
-        )}
-      </div>
-      <div className="course-card-body">
-        <h3 className="course-card-title">{course.title}</h3>
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {course.total_duration && (
-            <span className="course-card-meta">{formatDuration(course.total_duration)}</span>
-          )}
-          {course.deadline && (
-            <span className="course-card-meta" style={isOverdue ? { fontWeight: 'bold', color: 'var(--danger)' } : {}}>
-              Due: {course.deadline.split('T')[0]} {isOverdue && '(Overdue)'}
-            </span>
+      <Link to={`/course/${course.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', flex: 1 }}>
+        <div className="course-card-thumb">
+          {course.thumbnail_url ? (
+            <img src={course.thumbnail_url} alt={course.title} loading="lazy" />
+          ) : (
+            <div className="course-card-thumb-placeholder">Course</div>
           )}
         </div>
+        <div className="course-card-body" style={{ paddingBottom: '12px' }}>
+          <h3 className="course-card-title">{course.title}</h3>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {course.total_duration && (
+              <span className="course-card-meta">{formatDuration(course.total_duration)}</span>
+            )}
+            {course.deadline && isOverdue && (
+              <span className="course-card-meta" style={{ fontWeight: 'bold', color: 'var(--danger)' }}>
+                (Overdue)
+              </span>
+            )}
+          </div>
+        </div>
+      </Link>
+
+      <div style={{ padding: '12px 16px', borderTop: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', background: 'var(--bg-surface)' }}>
+        <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 500, whiteSpace: 'nowrap' }}>
+          {course.deadline ? 'Deadline:' : 'Add Deadline:'}
+        </span>
+        <DatePicker 
+          aria-label="Set Deadline"
+          value={course.deadline ? parseDate(course.deadline.split('T')[0]) : null}
+          onChange={handleDateChange}
+        />
       </div>
-    </Link>
+    </div>
   );
 }
 
