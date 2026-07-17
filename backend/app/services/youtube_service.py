@@ -1,0 +1,122 @@
+"""
+YouTube playlist/video extraction using yt-dlp.
+No API key required — works with any public YouTube playlist URL.
+"""
+from __future__ import annotations
+
+import re
+from typing import Any, Dict, List
+
+import yt_dlp
+
+from app.utils.logger import logger
+
+
+def extract_playlist_info(url: str) -> Dict[str, Any]:
+    """
+    Extract all video metadata and playlist details from a YouTube playlist URL.
+    Returns a dict with 'title', 'description', and 'videos' (sorted by playlist order).
+    """
+    ydl_opts = {
+        "quiet": True,
+        "no_warnings": True,
+        "extract_flat": "in_playlist",  # metadata only, no download
+        "ignoreerrors": True,
+        "skip_download": True,
+    }
+
+    videos: List[Dict[str, Any]] = []
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=False)
+        if not info:
+            raise ValueError("yt-dlp returned no info for the given URL")
+
+        entries = info.get("entries")
+        if entries is None:
+            if info.get("id"):
+                entries = [info]
+            else:
+                entries = []
+        for idx, entry in enumerate(entries):
+            if not entry:
+                continue
+
+            video_id = entry.get("id", "")
+            title = entry.get("title") or f"Video {idx + 1}"
+            duration = entry.get("duration") or 0
+            thumbnail = (
+                entry.get("thumbnail")
+                or (f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg" if video_id else "")
+            )
+
+            videos.append(
+                {
+                    "order_index": idx,
+                    "video_id": video_id,
+                    "title": title,
+                    "description": entry.get("description") or "",
+                    "video_url": f"https://www.youtube.com/watch?v={video_id}",
+                    "duration": int(duration),
+                    "thumbnail_url": thumbnail,
+                }
+            )
+
+    return {
+        "title": info.get("title") or "YouTube Course",
+        "description": info.get("description") or "",
+        "videos": videos,
+    }
+
+
+def extract_video_metadata(url: str) -> Dict[str, Any]:
+    """Return full metadata dict for a single YouTube video."""
+    ydl_opts = {"quiet": True, "no_warnings": True, "skip_download": True}
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        return ydl.extract_info(url, download=False) or {}
+
+
+def get_captions(video_id: str) -> str:
+    """
+    Attempt to fetch auto-generated English captions for a video.
+    Returns the raw VTT/SRT text, or an empty string if unavailable.
+    """
+    url = f"https://www.youtube.com/watch?v={video_id}"
+    ydl_opts = {
+        "quiet": True,
+        "no_warnings": True,
+        "skip_download": True,
+        "writeautomaticsub": True,
+        "subtitleslangs": ["en", "en-US"],
+        "subtitlesformat": "vtt",
+    }
+
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False) or {}
+            auto_captions: Dict = info.get("automatic_captions") or {}
+            for lang_key in ("en", "en-US", "en-GB"):
+                subs = auto_captions.get(lang_key, [])
+                for sub in subs:
+                    if sub.get("ext") in ("vtt", "srv3", "srv2", "srv1", "json3"):
+                        return sub.get("url", "")
+        return ""
+    except Exception as exc:
+        logger.warning("Caption extraction failed for %s: %s", video_id, exc)
+        return ""
+
+
+def get_thumbnail(video_id: str) -> str:
+    """Return the high-quality thumbnail URL for a YouTube video."""
+    return f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg"
+
+
+def extract_video_id_from_url(url: str) -> str:
+    """Parse a YouTube video ID from various URL formats."""
+    patterns = [
+        r"(?:v=|youtu\.be/|embed/)([a-zA-Z0-9_-]{11})",
+    ]
+    for pattern in patterns:
+        m = re.search(pattern, url)
+        if m:
+            return m.group(1)
+    return ""

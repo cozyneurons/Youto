@@ -1,0 +1,65 @@
+# === Node / Frontend ===
+node_modules/
+dist/
+.vite/
+*.local
+frontend/.env
+
+# === Python / Backend ===
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.eggs/
+build/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg
+MANIFEST
+.venv/
+venv/
+ENV/
+env/
+backend/.env
+
+# === Testing ===
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.dmypy.json
+
+# === Alembic ===
+backend/alembic/versions/*.py
+!backend/alembic/versions/.gitkeep
+
+# === Docker ===
+.dockerenv
+
+# === IDEs ===
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# === Logs ===
+*.log
+logs/
+
+# === Secrets ===
+*.pem
+*.key
+.env
+.env.*
+!.env.example
