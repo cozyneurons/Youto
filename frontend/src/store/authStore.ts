@@ -67,3 +67,6 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ user });
   },
 }));
+
+// Hydrate synchronously on store creation
+useAuthStore.getState().hydrate();

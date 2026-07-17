@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import { useAuthStore } from './store/authStore';
@@ -20,12 +19,6 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const hydrate = useAuthStore(s => s.hydrate);
-
-  useEffect(() => {
-    hydrate();
-  }, []);
-
   return (
     <ErrorBoundary>
       <BrowserRouter>
