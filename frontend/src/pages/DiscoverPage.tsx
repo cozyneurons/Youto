@@ -183,7 +183,7 @@ export default function DiscoverPage() {
                     onClick={handleImport}
                     disabled={isImporting}
                   >
-                    {isImporting ? <><span className="spinner-sm" /> Importing…</> : '📥 Import as Course'}
+                    {isImporting ? <><span className="spinner-sm" /> Importing…</> : 'Import as Course'}
                   </button>
                   <a
                     href={recommendation.playlist_url}
