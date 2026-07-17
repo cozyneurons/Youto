@@ -4,6 +4,8 @@ import { notesService } from '../../services/notesService';
 import { NOTES_AUTOSAVE_DELAY_MS } from '../../utils/constants';
 import { seekVideo, timeToSeconds } from '../../utils/videoControl';
 
+import { courseService } from '../../services/courseService';
+
 interface Props {
   lessonId: number;
   summary?: string | null;
@@ -39,10 +41,13 @@ function renderWithTimestamps(text: string | null | undefined) {
   });
 }
 
-export default function NotesPanel({ lessonId, summary }: Props) {
+export default function NotesPanel({ lessonId, summary: initialSummary }: Props) {
   const [notes, setNotes] = useState('');
   const [saved, setSaved] = useState(true);
   const [tab, setTab] = useState<'edit' | 'view' | 'summary'>('edit');
+  const [summary, setSummary] = useState<string | null | undefined>(initialSummary);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState<string | null>(null);
 
   useEffect(() => {
     notesService.getNotes(lessonId).then(n => setNotes(n));
@@ -63,6 +68,19 @@ export default function NotesPanel({ lessonId, summary }: Props) {
     debouncedSave(e.target.value);
   };
 
+  const handleGenerateSummary = async () => {
+    setIsGenerating(true);
+    setGenerateError(null);
+    try {
+      const data = await courseService.generateSummary(lessonId);
+      setSummary(data.summary);
+    } catch (err: any) {
+      setGenerateError(err.response?.data?.detail || "Failed to generate summary.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <div className="notes-panel">
       <div className="notes-tabs">
@@ -78,14 +96,12 @@ export default function NotesPanel({ lessonId, summary }: Props) {
         >
           View Notes
         </button>
-        {summary && (
-          <button
-            className={`tab-btn ${tab === 'summary' ? 'active' : ''}`}
-            onClick={() => setTab('summary')}
-          >
-            Summary
-          </button>
-        )}
+        <button
+          className={`tab-btn ${tab === 'summary' ? 'active' : ''}`}
+          onClick={() => setTab('summary')}
+        >
+          Summary
+        </button>
         <span className="save-status">{saved ? '✓ Saved' : 'Saving…'}</span>
       </div>
 
@@ -104,7 +120,21 @@ export default function NotesPanel({ lessonId, summary }: Props) {
         </div>
       ) : (
         <div className="summary-text" style={{ whiteSpace: 'pre-wrap' }}>
-          {renderWithTimestamps(summary)}
+          {summary ? (
+            renderWithTimestamps(summary)
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', textAlign: 'center' }}>
+              <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>No AI summary has been generated for this video yet.</p>
+              {generateError && <p style={{ color: 'var(--color-danger)', marginBottom: '1rem', fontSize: '0.9rem' }}>{generateError}</p>}
+              <button 
+                className="btn btn-primary" 
+                onClick={handleGenerateSummary}
+                disabled={isGenerating}
+              >
+                {isGenerating ? <><span className="spinner-sm" /> Generating…</> : '✨ Generate AI Summary'}
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

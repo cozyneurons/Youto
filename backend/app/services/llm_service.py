@@ -38,7 +38,8 @@ def generate_summary(transcript: str) -> str:
         return ""
 
     try:
-        return _call_gemini(SUMMARY_PROMPT.format(transcript=transcript[:8000]))
+        # 100,000 chars is ~25k tokens, very safe for 250k TPM limits
+        return _call_gemini(SUMMARY_PROMPT.format(transcript=transcript[:100000]))
     except Exception as exc:
         logger.error("Gemini summary generation failed: %s", exc)
         return ""

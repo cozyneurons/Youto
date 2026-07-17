@@ -30,4 +30,9 @@ export const courseService = {
     const { data } = await api.put<Course>(`/api/courses/${id}`, payload);
     return data;
   },
+
+  generateSummary: async (lessonId: number): Promise<{ summary: string }> => {
+    const { data } = await api.post<{ summary: string }>(`/api/lessons/${lessonId}/generate-summary`);
+    return data;
+  },
 };

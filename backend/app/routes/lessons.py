@@ -49,3 +49,40 @@ def get_lesson_summary(
     if not lesson:
         raise HTTPException(status_code=404, detail="Lesson not found")
     return {"summary": lesson.summary or ""}
+
+
+@router.post("/{lesson_id}/generate-summary")
+def generate_lesson_summary(
+    lesson_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    On-demand AI summarization of a lesson's transcript.
+    Enforces a safe max duration to prevent huge TPM hits on the LLM API.
+    """
+    lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
+    if not lesson:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+
+    if not lesson.transcript:
+        raise HTTPException(status_code=400, detail="No transcript available to summarize.")
+
+    # 2 hours = 7200 seconds. 
+    # If the video is longer, we reject summarization to preserve tokens/costs.
+    if lesson.duration and lesson.duration > 7200:
+        raise HTTPException(
+            status_code=400, 
+            detail="Video is too long to generate a summary safely (limit is 2 hours)."
+        )
+
+    from app.services.llm_service import generate_summary
+    
+    summary_text = generate_summary(lesson.transcript)
+    if not summary_text:
+        raise HTTPException(status_code=500, detail="AI generation failed or is disabled.")
+
+    lesson.summary = summary_text
+    db.commit()
+
+    return {"summary": lesson.summary}
