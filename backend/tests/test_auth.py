@@ -10,7 +10,7 @@ from sqlalchemy.orm import sessionmaker
 from app.main import app
 from app.services.database import get_db
 from app.models.base import Base
-import app.models  # noqa: F401
+from app import models  # noqa: F401
 
 # ── In-memory SQLite for tests ───────────────────────────────────────────────
 SQLALCHEMY_TEST_URL = "sqlite:///./test.db"
