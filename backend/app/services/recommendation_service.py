@@ -28,41 +28,53 @@ def _configure_gemini() -> Optional[genai.GenerativeModel]:
 
 
 def _build_prompt(topic: str, level: str, reddit_posts: List[Dict], yt_playlists: List[Dict]) -> str:
-    reddit_section = json.dumps(reddit_posts, indent=2) if reddit_posts else "No Reddit data available."
-    yt_section = json.dumps(yt_playlists, indent=2) if yt_playlists else "No YouTube data available."
+    if reddit_posts:
+        reddit_section_text = f"""
+## Community Sentiment (live scraped top community posts about {topic} courses/playlists):
+Each post includes: title, upvote score, comment count, community, and the post body text.
+{json.dumps(reddit_posts, indent=2)}
+"""
+        reddit_instructions = """
+1. Cross-reference the community sentiment WITH the YouTube playlists. 
+   Look for channel names mentioned in community posts — that's the strongest signal.
+2. Pay close attention to "post_body" fields — they often contain direct mentions of specific channels/playlists.
+3. A high upvote score on a community post recommending a specific channel is a very strong quality signal.
+4. Prefer YouTube playlists from channels that have been explicitly praised by the developer community.
+"""
+    else:
+        reddit_section_text = """
+## Community Sentiment:
+No relevant community data could be retrieved (data may be unavailable, missing, or filtered).
+"""
+        reddit_instructions = """
+1. Since no live community data is available, do NOT fabricate or synthesize community signals.
+2. You must return an empty array `[]` for the `reddit_signals` field.
+3. Base your recommendation purely on the YouTube playlist metadata and your internal knowledge of learning path quality.
+"""
 
     return f"""You are a learning path expert. A user wants to learn "{topic}" at a "{level}" level.
 
-I have gathered community sentiment data from Reddit (including top comments) and playlist metadata from YouTube. 
+I have gathered playlist metadata from YouTube. 
 Your job is to analyze this data and recommend the single BEST YouTube playlist for this learner.
-
-## Reddit Community Sentiment (top posts about {topic} courses/playlists):
-Each post includes: title, upvote score, comment count, subreddit, and the top community comment.
-{reddit_section}
-
+{reddit_section_text}
 ## YouTube Playlists Found:
-{yt_section}
+{json.dumps(yt_playlists, indent=2) if yt_playlists else "No YouTube data available."}
 
 ## Instructions:
-1. Cross-reference the Reddit sentiment WITH the YouTube playlists. 
-   Look for channel names mentioned in Reddit posts or comments — that's the strongest signal.
-2. Pay close attention to "top_comment" fields — they often contain direct mentions of specific channels/playlists.
-3. Factor in the learner's level ("{level}") — beginner needs fundamentals, advanced needs depth.
-4. A high upvote score on a Reddit post recommending a specific channel is a very strong quality signal.
-5. Prefer YouTube playlists from channels that have been explicitly praised by the Reddit community.
+{reddit_instructions}
+- Factor in the learner's level ("{level}") — beginner needs fundamentals, advanced needs depth.
 
 ## Output Format:
-Respond ONLY with a valid JSON object (no markdown, no code blocks) in this exact format:
+Respond ONLY with a valid JSON object (no markdown, no code blocks) in this exact format.
+IMPORTANT: Never use the word "Reddit" or "subreddit" in your output. Use "community", "developers", or "forums" instead.
 {{
   "playlist_url": "https://www.youtube.com/playlist?list=...",
   "title": "Recommended playlist title",
   "channel": "Channel name",
   "thumbnail": "thumbnail URL if available or empty string",
-  "justification": "A clear 2-3 sentence explanation citing specific Reddit signals (subreddit, upvote counts) and why this playlist matches the requested level.",
-  "reddit_signals": ["key insight from Reddit post 1", "key insight from Reddit post 2", "key insight from Reddit post 3"]
+  "justification": "A clear 2-3 sentence explanation citing why this playlist matches the requested level and what the community generally thinks of it.",
+  "reddit_signals": ["key community insight 1", "key community insight 2", "key community insight 3"]
 }}
-
-If no strong match exists between Reddit mentions and YouTube results, pick the best YouTube result and note the limitation.
 """
 
 

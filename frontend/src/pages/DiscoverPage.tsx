@@ -114,7 +114,7 @@ export default function DiscoverPage() {
             disabled={isLoading || !topic.trim()}
           >
             {isLoading ? (
-              <><span className="spinner-sm" /> Analysing Reddit &amp; YouTube…</>
+              <><span className="spinner-sm" /> Searching for the best courses…</>
             ) : (
               '✨ Find Best Course'
             )}
@@ -126,12 +126,9 @@ export default function DiscoverPage() {
 
         {/* Loading state */}
         {isLoading && (
-          <div className="discover-loading">
-            <div className="discover-loading-steps">
-              <div className="loading-step">🔴 Scanning Reddit community posts…</div>
-              <div className="loading-step">▶️ Searching YouTube playlists…</div>
-              <div className="loading-step">✨ Synthesising with Gemini AI…</div>
-            </div>
+          <div className="discover-loading flex items-center justify-center p-8">
+            <span className="spinner-md"></span>
+            <span className="ml-3 text-[var(--text-muted)] animate-pulse">Analyzing community sentiment...</span>
           </div>
         )}
 
@@ -158,12 +155,12 @@ export default function DiscoverPage() {
                   <p className="recommendation-justification">{recommendation.justification}</p>
                 )}
                 {recommendation._no_gemini && (
-                  <p className="no-gemini-notice">⚡ Add a <code>GEMINI_API_KEY</code> to get AI-powered reasoning that cross-references Reddit community votes.</p>
+                  <p className="no-gemini-notice">⚡ Add a <code>GEMINI_API_KEY</code> to get AI-powered reasoning that cross-references community votes.</p>
                 )}
 
                 {recommendation.reddit_signals && recommendation.reddit_signals.length > 0 && (
                   <div className="reddit-signals">
-                    <span className="reddit-signals-label">🔴 Reddit Signals:</span>
+                    <span className="reddit-signals-label">💡 Community Insights:</span>
                     <ul>
                       {recommendation.reddit_signals.map((sig, i) => (
                         <li key={i}>{sig}</li>
