@@ -50,9 +50,20 @@ def extract_playlist(
     if not videos:
         raise HTTPException(status_code=422, detail="No videos found in the playlist")
 
+    # ── Generate Course Phases via Groq ──────────────────────────────────────
+    from app.services.llm_service import generate_course_phases
+    
+    video_titles = [v["title"] for v in videos]
+    playlist_title = playlist_data.get("title", "YouTube Playlist Course")
+    
+    phases = generate_course_phases(playlist_title, video_titles)
+    
+    # Create a mapping of video_index to phase_name
+    phase_map = {item.get("video_index"): item.get("phase_name") for item in phases if isinstance(item, dict)}
+
     # ── Persist course ───────────────────────────────────────────────────────
     course = Course(
-        title=playlist_data.get("title", "YouTube Playlist Course"),
+        title=playlist_title,
         description=playlist_data.get("description") or f"Auto-generated from: {url}",
         youtube_url=url,
         thumbnail_url=videos[0].get("thumbnail_url"),
@@ -63,7 +74,7 @@ def extract_playlist(
     db.flush()  # get course.id
 
     # ── Persist lessons ──────────────────────────────────────────────────────
-    for v in videos:
+    for idx, v in enumerate(videos):
         db.add(
             Lesson(
                 course_id=course.id,
@@ -72,6 +83,7 @@ def extract_playlist(
                 order_index=v["order_index"],
                 video_url=v["video_url"],
                 duration=v.get("duration", 0),
+                phase=phase_map.get(idx)  # Apply LLM phase, or None if failed
             )
         )
 

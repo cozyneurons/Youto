@@ -13,8 +13,10 @@ if config.config_file_name is not None:
 # Import your models' metadata for autogenerate
 from app.models.base import Base   # noqa: E402
 import app.models                   # noqa: F401 — registers all ORM models
+from app.config import settings
 
 target_metadata = Base.metadata
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 
 
 def run_migrations_offline() -> None:

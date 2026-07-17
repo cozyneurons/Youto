@@ -50,3 +50,64 @@ def _call_gemini(prompt: str) -> str:
     model = genai.GenerativeModel("gemini-1.5-flash")
     response = model.generate_content(prompt)
     return response.text.strip()
+
+
+def generate_course_phases(playlist_title: str, video_titles: list[str]) -> list[dict]:
+    """
+    Calls Groq API to intelligently group a list of video titles into logical phases.
+    Returns a list of dicts: [{"video_index": 0, "phase_name": "Fundamentals"}, ...]
+    """
+    import httpx
+    import json
+    
+    if not settings.GROQ_API_KEY:
+        logger.warning("GROQ_API_KEY not set — falling back to mathematical phasing")
+        return []
+
+    if not video_titles:
+        return []
+
+    titles_str = "\n".join(f"{i}: {title}" for i, title in enumerate(video_titles))
+
+    prompt = f"""You are an expert curriculum designer. Given a YouTube playlist title and a list of video titles in order, logically group these videos into 3 to 6 distinct phases (e.g., "Fundamentals", "Core Concepts", "Advanced", "Projects").
+
+Playlist Title: {playlist_title}
+
+Videos:
+{titles_str}
+
+Output ONLY a raw JSON array of objects. Do not include markdown code blocks (like ```json), just the raw JSON.
+Each object must have exactly two keys:
+- "video_index": the integer index of the video (from the list above)
+- "phase_name": a concise, descriptive name for the phase (e.g., "Module 1: Basics")
+
+The array must have exactly one object for every video provided, in the exact same order.
+"""
+    try:
+        response = httpx.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers={"Authorization": f"Bearer {settings.GROQ_API_KEY}"},
+            json={
+                "model": "llama-3.1-8b-instant",
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": 0.2
+            },
+            timeout=15.0
+        )
+        response.raise_for_status()
+        data = response.json()
+        content = data["choices"][0]["message"]["content"].strip()
+        
+        # Clean up markdown formatting if present
+        if content.startswith("```json"):
+            content = content[7:]
+        if content.startswith("```"):
+            content = content[3:]
+        if content.endswith("```"):
+            content = content[:-3]
+        
+        phases = json.loads(content.strip())
+        return phases
+    except Exception as exc:
+        logger.error("Groq phase generation failed: %s", exc)
+        return []

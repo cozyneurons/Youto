@@ -13,4 +13,5 @@ class LessonResponse(BaseModel):
     video_url: str | None = None
     duration: int | None = None
     summary: str | None = None
+    phase: str | None = None
     created_at: datetime | None = None

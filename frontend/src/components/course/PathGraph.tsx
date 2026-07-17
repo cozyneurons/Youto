@@ -18,30 +18,43 @@ export default function PathGraph({ lessons, courseId, completedLessons }: Props
   const cx = SVG_WIDTH / 2;
   const amp = 180; // horizontal amplitude
 
-  const sectionSize = Math.max(1, Math.ceil(lessons.length / 3));
+  // Group lessons by their 'phase' string
+  const sections: { id: number; y: number; label: string }[] = [];
+  let currentSectionIndex = 0;
+  let currentPhase = lessons.length > 0 ? (lessons[0].phase || "Phase 1") : "";
 
-  const pts = lessons.map((_, i) => {
-    const sectionIndex = Math.floor(i / sectionSize);
+  const pts = lessons.map((lesson, i) => {
+    // If phase changes, we increment section index
+    const phaseName = lesson.phase || `Phase ${currentSectionIndex + 1}`;
+    if (i > 0 && phaseName !== currentPhase) {
+      currentSectionIndex++;
+      currentPhase = phaseName;
+    }
+    
     return {
       x: i % 2 === 0 ? cx - amp : cx + amp,
-      y: 100 + i * NODE_HEIGHT + sectionIndex * SECTION_GAP,
-      sectionIndex,
+      y: 100 + i * NODE_HEIGHT + currentSectionIndex * SECTION_GAP,
+      sectionIndex: currentSectionIndex,
+      phaseName,
     };
   });
 
   const totalHeight = pts.length > 0 ? pts[pts.length - 1].y + 100 : 0;
 
+  // Build the dividers array based on where section transitions happen
   const dividers = [];
-  if (lessons.length > 0) {
-    dividers.push({ id: 0, y: 0, label: "Phase 1" });
-    if (lessons.length > sectionSize) {
-      const idx2 = sectionSize;
-      if (idx2 < pts.length) {
-        dividers.push({ id: 1, y: (pts[idx2 - 1].y + pts[idx2].y) / 2, label: "Phase 2" });
-      }
-      const idx3 = sectionSize * 2;
-      if (idx3 < pts.length) {
-        dividers.push({ id: 2, y: (pts[idx3 - 1].y + pts[idx3].y) / 2, label: "Phase 3" });
+  if (pts.length > 0) {
+    // First divider is always at the top
+    dividers.push({ id: 0, y: 0, label: pts[0].phaseName });
+    
+    // Find where section index changes
+    let lastSection = 0;
+    for (let i = 1; i < pts.length; i++) {
+      if (pts[i].sectionIndex > lastSection) {
+        // Place divider halfway between previous node and current node
+        const yPos = (pts[i - 1].y + pts[i].y) / 2;
+        dividers.push({ id: pts[i].sectionIndex, y: yPos, label: pts[i].phaseName });
+        lastSection = pts[i].sectionIndex;
       }
     }
   }

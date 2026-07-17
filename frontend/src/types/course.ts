@@ -19,5 +19,6 @@ export interface Lesson {
   video_url: string | null;
   duration: number | null;
   summary: string | null;
+  phase: string | null;
   created_at: string | null;
 }

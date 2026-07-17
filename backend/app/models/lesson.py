@@ -15,6 +15,7 @@ class Lesson(Base):
     duration = Column(Integer)  # seconds
     transcript = Column(Text)
     summary = Column(Text)      # Gemini-generated summary
+    phase = Column(String)      # Groq-generated course phase name
     created_at = Column(DateTime, server_default=func.now())
 
     course = relationship("Course", back_populates="lessons")
