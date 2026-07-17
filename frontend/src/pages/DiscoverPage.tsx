@@ -126,8 +126,12 @@ export default function DiscoverPage() {
 
         {/* Loading state */}
         {isLoading && (
-          <div className="discover-loading flex items-center justify-center p-8">
-            <span className="spinner-md"></span>
+          <div
+            className="discover-loading flex items-center justify-center p-8"
+            role="status"
+            aria-live="polite"
+          >
+            <span className="spinner-md" aria-hidden="true" />
             <span className="ml-3 text-[var(--text-muted)] animate-pulse">Analyzing community sentiment...</span>
           </div>
         )}

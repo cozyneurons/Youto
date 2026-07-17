@@ -40,7 +40,7 @@ def get_reddit_sentiment(topic: str, level: str) -> List[Dict[str, Any]]:
         return []
 
     results = []
-    seen_urls = set()
+    seen_ids = set()
     
     for p in data:
         if not isinstance(p, dict):
@@ -56,12 +56,13 @@ def get_reddit_sentiment(topic: str, level: str) -> List[Dict[str, Any]]:
         if score < 5:
             continue
             
-        url = p.get("url", "")
-        # Basic deduplication
-        if url in seen_urls:
+        # Deduplicate by submission identity (id or permalink), fallback to url
+        post_id = p.get("id") or p.get("permalink") or p.get("url", "")
+        if not post_id or post_id in seen_ids:
             continue
-        seen_urls.add(url)
+        seen_ids.add(post_id)
         
+        url = p.get("url", "")
         # PullPush provides a direct permalink if we prepend reddit.com
         permalink = p.get("permalink", "")
         full_permalink = f"https://reddit.com{permalink}" if permalink else url
