@@ -29,7 +29,7 @@ SUMMARY_PROMPT = (
 
 def generate_summary(transcript: str) -> str:
     """
-    Generate a plain-text summary of a video transcript using Gemini 1.5 Flash.
+    Generate a plain-text summary of a video transcript.
     Returns an empty string if the API key is missing or an error occurs.
     """
     if not _gemini_ready:
@@ -37,9 +37,11 @@ def generate_summary(transcript: str) -> str:
     if not transcript or len(transcript.strip()) < 50:
         return ""
 
+    if len(transcript) > 100000:
+        raise ValueError("Transcript exceeds the maximum supported length for summarization.")
+
     try:
-        # 100,000 chars is ~25k tokens, very safe for 250k TPM limits
-        return _call_gemini(SUMMARY_PROMPT.format(transcript=transcript[:100000]))
+        return _call_gemini(SUMMARY_PROMPT.format(transcript=transcript))
     except Exception as exc:
         logger.error("Gemini summary generation failed: %s", exc)
         return ""
@@ -48,7 +50,7 @@ def generate_summary(transcript: str) -> str:
 def _call_gemini(prompt: str) -> str:
     """Internal wrapper around the Gemini generative model API."""
     import google.generativeai as genai  # noqa: F811
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-3.1-flash-lite")
     response = model.generate_content(prompt)
     return response.text.strip()
 

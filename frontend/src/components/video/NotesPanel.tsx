@@ -48,10 +48,15 @@ export default function NotesPanel({ lessonId, summary: initialSummary }: Props)
   const [summary, setSummary] = useState<string | null | undefined>(initialSummary);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
+  const currentLessonId = React.useRef(lessonId);
 
   useEffect(() => {
+    currentLessonId.current = lessonId;
+    setSummary(initialSummary);
+    setIsGenerating(false);
+    setGenerateError(null);
     notesService.getNotes(lessonId).then(n => setNotes(n));
-  }, [lessonId]);
+  }, [lessonId, initialSummary]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSave = useCallback(
@@ -71,13 +76,20 @@ export default function NotesPanel({ lessonId, summary: initialSummary }: Props)
   const handleGenerateSummary = async () => {
     setIsGenerating(true);
     setGenerateError(null);
+    const targetLessonId = lessonId;
     try {
-      const data = await courseService.generateSummary(lessonId);
-      setSummary(data.summary);
+      const data = await courseService.generateSummary(targetLessonId);
+      if (currentLessonId.current === targetLessonId) {
+        setSummary(data.summary);
+      }
     } catch (err: any) {
-      setGenerateError(err.response?.data?.detail || "Failed to generate summary.");
+      if (currentLessonId.current === targetLessonId) {
+        setGenerateError(err.response?.data?.detail || "Failed to generate summary.");
+      }
     } finally {
-      setIsGenerating(false);
+      if (currentLessonId.current === targetLessonId) {
+        setIsGenerating(false);
+      }
     }
   };
 

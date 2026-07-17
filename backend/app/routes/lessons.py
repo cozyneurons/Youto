@@ -80,7 +80,7 @@ def generate_lesson_summary(
     
     summary_text = generate_summary(lesson.transcript)
     if not summary_text:
-        raise HTTPException(status_code=500, detail="AI generation failed or is disabled.")
+        raise HTTPException(status_code=503, detail="AI generation failed or is currently unavailable.")
 
     lesson.summary = summary_text
     db.commit()
