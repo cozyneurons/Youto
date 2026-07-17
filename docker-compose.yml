@@ -80,6 +80,27 @@ services:
     command: celery -A app.tasks.extract_video.celery_app worker --loglevel=info --concurrency=2
     restart: unless-stopped
 
+  # ── Celery Beat ───────────────────────────────────────────────────────────
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: youto-celery-beat
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/youto
+      REDIS_URL: redis://redis:6379
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+    depends_on:
+      - redis
+      - postgres
+    volumes:
+      - ./backend:/app
+    command: celery -A app.tasks.extract_video.celery_app beat --loglevel=info
+    restart: unless-stopped
+
   # ── Frontend (dev) ────────────────────────────────────────────────────────
   frontend:
     image: node:20-alpine

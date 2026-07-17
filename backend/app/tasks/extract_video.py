@@ -1,16 +1,14 @@
 from celery import Celery
 from app.config import settings
 
-celery_app = Celery(
-    "youto",
-    broker=settings.CELERY_BROKER_URL,
-    backend=settings.CELERY_RESULT_BACKEND,
-)
+celery_app = Celery("youto")
+celery_app.config_from_object("app.celery_config")
 
 celery_app.conf.task_routes = {
     "extract_video": {"queue": "default"},
     "generate_summary": {"queue": "default"},
     "send_notification": {"queue": "default"},
+    "check_overdue_courses_task": {"queue": "default"},
 }
 
 

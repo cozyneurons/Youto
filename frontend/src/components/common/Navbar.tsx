@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
+import { useNotificationStore } from '../../store/notificationStore';
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuthStore();
@@ -24,6 +25,17 @@ export default function Navbar() {
     navigate('/login');
   };
 
+  const { notifications, fetchNotifications, markAsRead } = useNotificationStore();
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchNotifications();
+    }
+  }, [isAuthenticated, fetchNotifications]);
+
+  const toggleNotifications = () => setShowNotifications(prev => !prev);
+
   return (
     <nav className="navbar">
       <Link to="/" className="navbar-brand">
@@ -44,6 +56,38 @@ export default function Navbar() {
 
         {isAuthenticated ? (
           <>
+            <div style={{ position: 'relative' }}>
+              <button onClick={toggleNotifications} className="btn btn-ghost btn-sm" style={{ padding: '6px', position: 'relative' }} title="Notifications">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                {notifications.length > 0 && (
+                  <span style={{ position: 'absolute', top: '2px', right: '4px', background: 'var(--danger)', width: '8px', height: '8px', borderRadius: '50%' }}></span>
+                )}
+              </button>
+              {showNotifications && (
+                <div style={{ position: 'absolute', top: '100%', right: '0', width: '300px', background: 'var(--bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '8px', zIndex: 100, boxShadow: 'var(--shadow-md)' }}>
+                  <h4 style={{ margin: '0 0 8px', fontSize: '14px', borderBottom: '1px solid var(--color-border)', paddingBottom: '4px' }}>Notifications</h4>
+                  {notifications.length === 0 ? (
+                    <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>No unread notifications</div>
+                  ) : (
+                    <div style={{ maxHeight: '300px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {notifications.map(n => (
+                        <div key={n.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', background: 'var(--bg-elevated)', padding: '8px', borderRadius: 'var(--radius-sm)' }}>
+                          <div>
+                            <div>{n.message}</div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{new Date(n.created_at).toLocaleDateString()}</div>
+                          </div>
+                          <button onClick={() => { markAsRead(n.id); if (n.course_id) navigate(`/course/${n.course_id}`); }} className="btn btn-sm" style={{ padding: '2px 6px' }}>View</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             <Link to="/dashboard" className="nav-link">Dashboard</Link>
             <Link to="/discover" className="nav-link">Discover</Link>
             <button onClick={handleLogout} className="btn btn-ghost btn-sm">

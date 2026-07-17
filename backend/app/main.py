@@ -28,7 +28,7 @@ app.add_middleware(
 add_error_handlers(app)
 
 # ── Routers ──────────────────────────────────────────────────────────────────
-from app.routes import auth, playlists, courses, lessons, progress, notes, users, recommendations  # noqa: E402
+from app.routes import auth, playlists, courses, lessons, progress, notes, users, recommendations, notifications  # noqa: E402
 
 app.include_router(auth.router,            prefix="/api/auth",            tags=["auth"])
 app.include_router(playlists.router,       prefix="/api/playlists",       tags=["playlists"])
@@ -38,6 +38,7 @@ app.include_router(progress.router,        prefix="/api/progress",        tags=[
 app.include_router(notes.router,           prefix="/api/notes",           tags=["notes"])
 app.include_router(users.router,           prefix="/api/users",           tags=["users"])
 app.include_router(recommendations.router, prefix="/api/recommendations", tags=["recommendations"])
+app.include_router(notifications.router,   prefix="/api/notifications",   tags=["notifications"])
 
 
 # ── Lifecycle ────────────────────────────────────────────────────────────────

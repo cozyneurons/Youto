@@ -4,5 +4,6 @@ from app.models.course import Course
 from app.models.lesson import Lesson
 from app.models.progress import Progress
 from app.models.user_stats import UserStats
+from app.models.notification import Notification
 
-__all__ = ["User", "Course", "Lesson", "Progress", "UserStats"]
+__all__ = ["User", "Course", "Lesson", "Progress", "UserStats", "Notification"]

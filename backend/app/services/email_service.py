@@ -10,3 +10,8 @@ def send_welcome_email(email: str, name: str) -> None:
 def send_course_completed(email: str, course_title: str) -> None:
     # TODO: Implement with Sendgrid SDK or smtplib
     logger.info("[EMAIL STUB] Course complete email → %s | course: %s", email, course_title)
+
+
+def send_overdue_email(email: str, course_title: str) -> None:
+    # TODO: Implement with Sendgrid SDK or smtplib
+    logger.info("[EMAIL STUB] Course overdue email → %s | course: %s", email, course_title)
