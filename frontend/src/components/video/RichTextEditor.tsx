@@ -11,9 +11,6 @@ interface RichTextEditorProps {
 }
 
 const MenuBar = ({ editor }: { editor: any }) => {
-  if (!editor) {
-    return null;
-  }
 
   const state = useEditorState({
     editor,
@@ -130,8 +127,8 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
     ],
     content: value,
     onUpdate: ({ editor }) => {
-      // Pass HTML back to parent
-      onChange(editor.getHTML());
+      // Pass HTML back to parent with a marker so we know it's already rich text
+      onChange('<!--RICH-->' + editor.getHTML());
     },
     editorProps: {
       attributes: {
@@ -143,25 +140,32 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
 
   // Keep editor content in sync with external value changes (e.g. initial load)
   useEffect(() => {
-    if (editor && value !== editor.getHTML()) {
-      const isHtml = !value || value.trim().startsWith('<');
-      if (!isHtml) {
-        // Migrate legacy plain text to HTML preserving paragraphs
-        const escaped = value
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;');
-        const migrated = escaped.split('\n').map(line => `<p>${line}</p>`).join('');
-        editor.commands.setContent(migrated, { emitUpdate: true });
-      } else {
-        editor.commands.setContent(value, { emitUpdate: false });
-      }
+    if (!editor) return;
+    
+    const MARKER = '<!--RICH-->';
+    const isRichText = value && value.startsWith(MARKER);
+    const expectedHtml = isRichText ? value.slice(MARKER.length) : value;
+
+    if (editor.getHTML() === expectedHtml) return;
+
+    if (isRichText) {
+      editor.commands.setContent(expectedHtml, { emitUpdate: false });
+    } else if (value) {
+      // Migrate legacy plain text to HTML preserving paragraphs
+      const escaped = value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      const migrated = escaped.split('\n').map(line => `<p>${line}</p>`).join('');
+      editor.commands.setContent(migrated, { emitUpdate: true });
+    } else {
+      editor.commands.setContent('', { emitUpdate: false });
     }
   }, [value, editor]);
 
   return (
     <div className="rich-text-container">
-      <MenuBar editor={editor} />
+      {editor && <MenuBar editor={editor} />}
       <div className="rich-text-editor-wrapper">
         <EditorContent editor={editor} />
       </div>
