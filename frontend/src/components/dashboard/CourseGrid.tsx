@@ -52,10 +52,11 @@ function CourseCard({ course }: { course: Course }) {
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newDeadline = e.target.value;
-    updateCourseDeadline(course.id, newDeadline ? new Date(newDeadline).toISOString() : null);
+    updateCourseDeadline(course.id, newDeadline || null);
   };
 
-  const isOverdue = course.deadline && new Date(course.deadline) < new Date();
+  const todayStr = new Date().toISOString().split('T')[0];
+  const isOverdue = course.deadline && course.deadline < todayStr;
 
   return (
     <Link to={`/course/${course.id}`} className="course-card" id={`course-card-${course.id}`} style={{ position: 'relative' }}>
@@ -89,7 +90,7 @@ function CourseCard({ course }: { course: Course }) {
         ref={dateInputRef} 
         style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }} 
         onChange={handleDateChange}
-        value={course.deadline ? new Date(course.deadline).toISOString().split('T')[0] : ''}
+        value={course.deadline || ''}
       />
       
       {menuOpen && (
@@ -114,7 +115,7 @@ function CourseCard({ course }: { course: Course }) {
           )}
           {course.deadline && (
             <span className="course-card-meta" style={isOverdue ? { fontWeight: 'bold', color: 'var(--danger)' } : {}}>
-              Due: {new Date(course.deadline).toLocaleDateString()} {isOverdue && '(Overdue)'}
+              Due: {course.deadline} {isOverdue && '(Overdue)'}
             </span>
           )}
         </div>

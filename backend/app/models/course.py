@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, func
+from sqlalchemy import Column, Integer, String, Text, DateTime, Date, ForeignKey, func
 from sqlalchemy.orm import relationship
 from app.models.base import Base
 
@@ -13,7 +13,7 @@ class Course(Base):
     youtube_url = Column(String)
     thumbnail_url = Column(String)
     total_duration = Column(Integer)  # seconds
-    deadline = Column(DateTime)
+    deadline = Column(Date)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
