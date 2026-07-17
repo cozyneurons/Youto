@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { PlayCircle } from 'lucide-react';
 import type { Course } from '../../types';
 import { formatDuration } from '../../utils/formatters';
 import { useCourseStore } from '../../store/courseStore';
@@ -55,7 +56,7 @@ function CourseCard({ course }: { course: Course }) {
         {course.thumbnail_url ? (
           <img src={course.thumbnail_url} alt={course.title} loading="lazy" />
         ) : (
-          <div className="course-card-thumb-placeholder">▶</div>
+          <div className="course-card-thumb-placeholder"><PlayCircle className="w-10 h-10 text-[var(--accent)] opacity-50" /></div>
         )}
       </div>
       <div className="course-card-body">
