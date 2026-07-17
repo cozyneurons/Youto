@@ -55,7 +55,12 @@ function CourseCard({ course }: { course: Course }) {
     updateCourseDeadline(course.id, newDeadline || null);
   };
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  const now = new Date();
+  const todayStr = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, '0'),
+    String(now.getDate()).padStart(2, '0'),
+  ].join('-');
   const isOverdue = course.deadline && course.deadline < todayStr;
 
   return (
@@ -75,8 +80,8 @@ function CourseCard({ course }: { course: Course }) {
             <line x1="3" y1="10" x2="21" y2="10"></line>
           </svg>
         </button>
-        <button 
-          className="course-card-menu-btn" 
+        <button
+          className="course-card-menu-btn"
           style={{ position: 'static' }}
           onClick={handleMenuClick}
           aria-label="Options"
@@ -85,14 +90,14 @@ function CourseCard({ course }: { course: Course }) {
         </button>
       </div>
 
-      <input 
-        type="date" 
-        ref={dateInputRef} 
-        style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }} 
+      <input
+        type="date"
+        ref={dateInputRef}
+        style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }}
         onChange={handleDateChange}
         value={course.deadline || ''}
       />
-      
+
       {menuOpen && (
         <div className="course-card-dropdown" onClick={(e) => e.preventDefault()}>
           <button onClick={handleRename}>Rename</button>
@@ -115,7 +120,7 @@ function CourseCard({ course }: { course: Course }) {
           )}
           {course.deadline && (
             <span className="course-card-meta" style={isOverdue ? { fontWeight: 'bold', color: 'var(--danger)' } : {}}>
-              Due: {course.deadline} {isOverdue && '(Overdue)'}
+              Due: {course.deadline.split('T')[0]} {isOverdue && '(Overdue)'}
             </span>
           )}
         </div>
