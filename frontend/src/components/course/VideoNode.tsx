@@ -7,10 +7,11 @@ interface Props {
   lesson: Lesson;
   courseId: number;
   completed: boolean;
+  isActive?: boolean;
   side: 'left' | 'right';
 }
 
-export default function VideoNode({ lesson, courseId, completed, side }: Props) {
+export default function VideoNode({ lesson, courseId, completed, isActive, side }: Props) {
   const navigate = useNavigate();
   const { ref, isVisible } = useScrollReveal();
   const videoId = extractVideoId(lesson.video_url);
@@ -23,7 +24,7 @@ export default function VideoNode({ lesson, courseId, completed, side }: Props) 
   return (
     <div
       ref={ref}
-      className={`video-node ${side} ${isVisible ? 'visible' : ''} ${completed ? 'completed' : ''}`}
+      className={`video-node ${side} ${isVisible ? 'visible' : ''} ${completed ? 'completed' : ''} ${isActive ? 'active' : ''}`}
       onClick={() => navigate(`/course/${courseId}/lesson/${lesson.id}`)}
       role="button"
       tabIndex={0}

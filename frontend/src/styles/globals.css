@@ -772,7 +772,7 @@ input {
   }
 }
 
-.video-node:not(.completed) .node-dot {
+.video-node.active .node-dot {
   animation: pulse-ring 2s infinite;
 }
 

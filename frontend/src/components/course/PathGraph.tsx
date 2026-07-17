@@ -12,6 +12,7 @@ interface Props {
  * alternating left and right along the path — like a winding road.
  */
 export default function PathGraph({ lessons, courseId, completedLessons }: Props) {
+  const activeIndex = lessons.findIndex((l) => !completedLessons[l.id]);
   const NODE_HEIGHT = 200;
   const SECTION_GAP = 180;
   const SVG_WIDTH = 600;
@@ -117,6 +118,7 @@ export default function PathGraph({ lessons, courseId, completedLessons }: Props
               lesson={lesson}
               courseId={courseId}
               completed={!!completedLessons[lesson.id]}
+              isActive={i === activeIndex}
               side={i % 2 === 0 ? 'left' : 'right'}
             />
           </div>
