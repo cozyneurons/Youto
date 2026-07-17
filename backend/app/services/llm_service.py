@@ -60,12 +60,16 @@ def generate_course_phases(playlist_title: str, video_titles: list[str]) -> list
     import httpx
     import json
     
-    if not settings.GROQ_API_KEY:
-        logger.warning("GROQ_API_KEY not set — falling back to mathematical phasing")
-        return []
-
     if not video_titles:
         return []
+        
+    def get_fallback():
+        section_size = max(1, (len(video_titles) + 2) // 3)
+        return [{"video_index": i, "phase_name": f"Phase {i // section_size + 1}"} for i in range(len(video_titles))]
+
+    if not settings.GROQ_API_KEY:
+        logger.warning("GROQ_API_KEY not set — falling back to mathematical phasing")
+        return get_fallback()
 
     titles_str = "\n".join(f"{i}: {title}" for i, title in enumerate(video_titles))
 
@@ -110,4 +114,4 @@ The array must have exactly one object for every video provided, in the exact sa
         return phases
     except Exception as exc:
         logger.error("Groq phase generation failed: %s", exc)
-        return []
+        return get_fallback()

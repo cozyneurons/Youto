@@ -59,7 +59,16 @@ def extract_playlist(
     phases = generate_course_phases(playlist_title, video_titles)
     
     # Create a mapping of video_index to phase_name
-    phase_map = {item.get("video_index"): item.get("phase_name") for item in phases if isinstance(item, dict)}
+    phase_map = {}
+    if isinstance(phases, list):
+        for item in phases:
+            if not isinstance(item, dict):
+                continue
+            v_idx = item.get("video_index")
+            p_name = item.get("phase_name")
+            if isinstance(v_idx, int) and 0 <= v_idx < len(videos) and isinstance(p_name, str) and p_name.strip():
+                if v_idx not in phase_map:
+                    phase_map[v_idx] = p_name.strip()
 
     # ── Persist course ───────────────────────────────────────────────────────
     course = Course(

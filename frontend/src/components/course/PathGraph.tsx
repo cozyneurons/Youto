@@ -21,11 +21,20 @@ export default function PathGraph({ lessons, courseId, completedLessons }: Props
   // Group lessons by their 'phase' string
   const sections: { id: number; y: number; label: string }[] = [];
   let currentSectionIndex = 0;
-  let currentPhase = lessons.length > 0 ? (lessons[0].phase || "Phase 1") : "";
+  let currentPhase = "Phase 1";
+  
+  if (lessons.length > 0) {
+    const firstValid = lessons.find(l => l.phase && l.phase.trim() !== "");
+    if (firstValid) {
+      currentPhase = firstValid.phase!.trim();
+    }
+  }
 
   const pts = lessons.map((lesson, i) => {
+    const rawPhase = lesson.phase?.trim();
+    const phaseName = (rawPhase && rawPhase !== "") ? rawPhase : currentPhase;
+    
     // If phase changes, we increment section index
-    const phaseName = lesson.phase || `Phase ${currentSectionIndex + 1}`;
     if (i > 0 && phaseName !== currentPhase) {
       currentSectionIndex++;
       currentPhase = phaseName;
@@ -35,7 +44,7 @@ export default function PathGraph({ lessons, courseId, completedLessons }: Props
       x: i % 2 === 0 ? cx - amp : cx + amp,
       y: 100 + i * NODE_HEIGHT + currentSectionIndex * SECTION_GAP,
       sectionIndex: currentSectionIndex,
-      phaseName,
+      phaseName: currentPhase,
     };
   });
 
