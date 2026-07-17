@@ -13,11 +13,11 @@ interface Props {
  */
 export default function PathGraph({ lessons, courseId, completedLessons }: Props) {
   const activeIndex = lessons.findIndex((l) => !completedLessons[l.id]);
-  const NODE_HEIGHT = 200;
+  const NODE_HEIGHT = 240;
   const SECTION_GAP = 180;
   const SVG_WIDTH = 600;
   const cx = SVG_WIDTH / 2;
-  const amp = 140; // horizontal amplitude
+  const amp = 90; // horizontal amplitude
 
   let currentSectionIndex = 0;
   let currentPhase = "Phase 1";
@@ -81,7 +81,7 @@ export default function PathGraph({ lessons, courseId, completedLessons }: Props
     return d;
   };
 
-  const activePoints = activeIndex === -1 ? pts : pts.slice(0, activeIndex + 1);
+  const activePoints = activeIndex === -1 ? pts : pts.slice(0, activeIndex);
 
   return (
     <div className="path-graph-container" style={{ position: 'relative', minHeight: totalHeight }}>
