@@ -1,8 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Course } from '../../types';
 import { formatDuration } from '../../utils/formatters';
 import { useCourseStore } from '../../store/courseStore';
+import { DatePicker } from '../common/date-picker';
+import { parseDate } from '@internationalized/date';
+import type { DateValue } from 'react-aria-components';
 
 interface Props {
   courses: Course[];
@@ -10,7 +13,6 @@ interface Props {
 
 function CourseCard({ course }: { course: Course }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const dateInputRef = useRef<HTMLInputElement>(null);
   const { renameCourse, deleteCourse, updateCourseDeadline } = useCourseStore();
 
   const handleMenuClick = (e: React.MouseEvent) => {
@@ -35,24 +37,8 @@ function CourseCard({ course }: { course: Course }) {
     }
   };
 
-  const handleCalendarClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (dateInputRef.current) {
-      if ('showPicker' in HTMLInputElement.prototype) {
-        try {
-          dateInputRef.current.showPicker();
-        } catch {
-          dateInputRef.current.focus();
-        }
-      } else {
-        dateInputRef.current.click();
-      }
-    }
-  };
-
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newDeadline = e.target.value;
-    updateCourseDeadline(course.id, newDeadline || null);
+  const handleDateChange = (date: DateValue | null) => {
+    updateCourseDeadline(course.id, date ? date.toString() : null);
   };
 
   const now = new Date();
@@ -66,20 +52,13 @@ function CourseCard({ course }: { course: Course }) {
   return (
     <Link to={`/course/${course.id}`} className="course-card" id={`course-card-${course.id}`} style={{ position: 'relative' }}>
       <div style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 10, display: 'flex', gap: '4px' }}>
-        <button
-          className="course-card-menu-btn"
-          style={{ position: 'static' }}
-          onClick={handleCalendarClick}
-          aria-label="Set Deadline"
-          title="Set Deadline"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-            <line x1="16" y1="2" x2="16" y2="6"></line>
-            <line x1="8" y1="2" x2="8" y2="6"></line>
-            <line x1="3" y1="10" x2="21" y2="10"></line>
-          </svg>
-        </button>
+        <div className="course-card-calendar" onClick={(e) => e.preventDefault()}>
+          <DatePicker 
+            aria-label="Set Deadline"
+            value={course.deadline ? parseDate(course.deadline.split('T')[0]) : null}
+            onChange={handleDateChange}
+          />
+        </div>
         <button
           className="course-card-menu-btn"
           style={{ position: 'static' }}
@@ -89,14 +68,6 @@ function CourseCard({ course }: { course: Course }) {
           ⋮
         </button>
       </div>
-
-      <input
-        type="date"
-        ref={dateInputRef}
-        style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }}
-        onChange={handleDateChange}
-        value={course.deadline || ''}
-      />
 
       {menuOpen && (
         <div className="course-card-dropdown" onClick={(e) => e.preventDefault()}>
