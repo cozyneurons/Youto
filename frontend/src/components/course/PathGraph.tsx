@@ -12,11 +12,11 @@ interface Props {
  * alternating left and right along the path — like a winding road.
  */
 export default function PathGraph({ lessons, courseId, completedLessons }: Props) {
-  const NODE_HEIGHT = 160;
+  const NODE_HEIGHT = 200;
   const SECTION_GAP = 180;
   const SVG_WIDTH = 600;
   const cx = SVG_WIDTH / 2;
-  const amp = 180; // horizontal amplitude
+  const amp = 140; // horizontal amplitude
 
   // Group lessons by their 'phase' string
   const sections: { id: number; y: number; label: string }[] = [];
