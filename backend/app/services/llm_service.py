@@ -75,6 +75,8 @@ def generate_course_phases(playlist_title: str, video_titles: list[str]) -> list
 
     prompt = f"""You are an expert curriculum designer. Given a YouTube playlist title and a list of video titles in order, logically group these videos into 3 to 6 distinct phases (e.g., "Fundamentals", "Core Concepts", "Advanced", "Projects").
 
+IMPORTANT: You MUST group multiple consecutive videos into the EXACT SAME phase. DO NOT create a unique phase for every single video. For example, if videos 0, 1, and 2 are all about Basics, they should ALL have the phase_name "Module 1: Basics".
+
 Playlist Title: {playlist_title}
 
 Videos:

@@ -66,7 +66,13 @@ def extract_playlist(
                 continue
             v_idx = item.get("video_index")
             p_name = item.get("phase_name")
-            if isinstance(v_idx, int) and 0 <= v_idx < len(videos) and isinstance(p_name, str) and p_name.strip():
+            if (
+                isinstance(v_idx, int)
+                and not isinstance(v_idx, bool)
+                and 0 <= v_idx < len(videos)
+                and isinstance(p_name, str)
+                and p_name.strip()
+            ):
                 if v_idx not in phase_map:
                     phase_map[v_idx] = p_name.strip()
 
