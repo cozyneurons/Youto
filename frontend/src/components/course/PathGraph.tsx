@@ -67,19 +67,21 @@ export default function PathGraph({ lessons, courseId, completedLessons }: Props
     }
   }
 
-  // Build SVG cubic bezier path through all node y positions
-  const buildPath = () => {
-    if (pts.length === 0) return '';
+  // Build SVG cubic bezier path through a subset of node y positions
+  const buildPath = (pointsToDraw: typeof pts) => {
+    if (pointsToDraw.length === 0) return '';
     let d = `M ${cx} 0`;
-    pts.forEach((pt, i) => {
-      const prevY = i === 0 ? 0 : pts[i - 1].y;
+    pointsToDraw.forEach((pt, i) => {
+      const prevY = i === 0 ? 0 : pointsToDraw[i - 1].y;
       const cp1y = prevY + (pt.y - prevY) * 0.4;
       const cp2y = pt.y - (pt.y - prevY) * 0.4;
-      const prevX = i === 0 ? cx : pts[i - 1].x;
+      const prevX = i === 0 ? cx : pointsToDraw[i - 1].x;
       d += ` C ${prevX} ${cp1y}, ${pt.x} ${cp2y}, ${pt.x} ${pt.y}`;
     });
     return d;
   };
+
+  const activePoints = activeIndex === -1 ? pts : pts.slice(0, activeIndex + 1);
 
   return (
     <div className="path-graph-container" style={{ position: 'relative', minHeight: totalHeight }}>
@@ -91,14 +93,26 @@ export default function PathGraph({ lessons, courseId, completedLessons }: Props
         viewBox={`0 0 ${SVG_WIDTH} ${totalHeight}`}
         preserveAspectRatio="xMidYMin meet"
       >
+        {/* Base grey path */}
         <path
-          d={buildPath()}
+          d={buildPath(pts)}
           stroke="var(--color-path)"
           strokeWidth="3"
           fill="none"
           strokeDasharray="8 6"
           strokeLinecap="round"
         />
+        {/* Completed green path */}
+        {activePoints.length > 0 && (
+          <path
+            d={buildPath(activePoints)}
+            stroke="var(--success)"
+            strokeWidth="3"
+            fill="none"
+            strokeDasharray="8 6"
+            strokeLinecap="round"
+          />
+        )}
       </svg>
 
       {/* Nodes overlaid on SVG */}
