@@ -38,15 +38,26 @@ export default function Navbar() {
 
   return (
     <nav className="navbar">
-      <Link to="/" className="navbar-brand">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <polygon points="5 3 19 12 5 21 5 3" />
-        </svg>
-        Youto
-      </Link>
+      {/* Left Navigation Group */}
+      <div className="navbar-left">
+        <Link to="/" className="navbar-brand">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polygon points="5 3 19 12 5 21 5 3" />
+          </svg>
+          Youto
+        </Link>
+        
+        {/* Main Nav Links (Left aligned) */}
+        <div className="navbar-nav">
+          <Link to="/" className="nav-link">Home</Link>
+          <Link to="/dashboard" className="nav-link">Dashboard</Link>
+          <Link to="/discover" className="nav-link">Discover</Link>
+        </div>
+      </div>
 
+      {/* Right Actions Group */}
       <div className="navbar-actions">
-        <button onClick={toggleTheme} className="btn btn-ghost btn-sm" style={{ padding: '6px' }} title="Toggle Theme">
+        <button onClick={toggleTheme} className="btn btn-ghost btn-sm" style={{ padding: '8px', borderRadius: '8px' }} title="Toggle Theme">
           {theme === 'dark' ? (
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
           ) : (
@@ -57,17 +68,17 @@ export default function Navbar() {
         {isAuthenticated ? (
           <>
             <div style={{ position: 'relative' }}>
-              <button onClick={toggleNotifications} className="btn btn-ghost btn-sm" style={{ padding: '6px', position: 'relative' }} title="Notifications">
+              <button onClick={toggleNotifications} className="btn btn-ghost btn-sm" style={{ padding: '8px', borderRadius: '8px', position: 'relative' }} title="Notifications">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                   <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                 </svg>
                 {notifications.length > 0 && (
-                  <span style={{ position: 'absolute', top: '2px', right: '4px', background: 'var(--danger)', width: '8px', height: '8px', borderRadius: '50%' }}></span>
+                  <span style={{ position: 'absolute', top: '2px', right: '4px', background: 'var(--danger, #ef4444)', width: '10px', height: '10px', borderRadius: '50%', border: '2px solid var(--nav-bg)' }}></span>
                 )}
               </button>
               {showNotifications && (
-                <div style={{ position: 'absolute', top: '100%', right: '0', width: '300px', background: 'var(--bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '8px', zIndex: 100, boxShadow: 'var(--shadow-md)' }}>
+                <div style={{ position: 'absolute', top: '100%', right: '0', width: '300px', background: 'var(--bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '8px', zIndex: 100, boxShadow: 'var(--shadow-md)', marginTop: '8px' }}>
                   <h4 style={{ margin: '0 0 8px', fontSize: '14px', borderBottom: '1px solid var(--color-border)', paddingBottom: '4px' }}>Notifications</h4>
                   {notifications.length === 0 ? (
                     <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>No unread notifications</div>
@@ -88,18 +99,13 @@ export default function Navbar() {
               )}
             </div>
 
-            <Link to="/dashboard" className="nav-link">Dashboard</Link>
-            <Link to="/discover" className="nav-link">Discover</Link>
-            <button onClick={handleLogout} className="btn btn-ghost btn-sm">
-              Sign out
-            </button>
-            <Link to="/profile" className="avatar">
+            <Link to="/profile" className="avatar" title="Profile" style={{ marginLeft: '4px', cursor: 'pointer' }}>
               {user?.name?.charAt(0).toUpperCase() || 'U'}
             </Link>
           </>
         ) : (
           <>
-            <Link to="/login" className="nav-link">Sign in</Link>
+            <Link to="/login" className="nav-link" style={{ fontWeight: 500, marginLeft: '8px' }}>Sign in</Link>
             <Link to="/signup" className="btn btn-primary btn-sm">Get Started</Link>
           </>
         )}

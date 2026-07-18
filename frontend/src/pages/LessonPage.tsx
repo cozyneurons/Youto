@@ -22,7 +22,7 @@ function LinkifiedText({ text }: { text: string }) {
           const match = part.match(/^(.*?)([\.,!\)?\]]*)$/);
           const cleanUrl = match ? match[1] : part;
           const trailing = match ? match[2] : '';
-          
+
           return (
             <span key={i}>
               <a href={cleanUrl} target="_blank" rel="noopener noreferrer" className="description-link">
@@ -53,19 +53,37 @@ export default function LessonPage() {
       setIsLoading(false);
       return;
     }
-    
+
     let isActive = true;
     setIsLoading(true);
     setError(null);
     setLesson(null);
     setCourse(null);
-    
+
+    const parsedLessonId = Number(lessonId);
+    const parsedCourseId = Number(courseId);
+    if (
+      !Number.isInteger(parsedLessonId) || parsedLessonId <= 0 ||
+      !Number.isInteger(parsedCourseId) || parsedCourseId <= 0
+    ) {
+      setError('Invalid course or lesson.');
+      setIsLoading(false);
+      return;
+    }
+
     Promise.all([
-      courseService.getLesson(Number(lessonId)),
-      courseService.getCourse(Number(courseId))
+      courseService.getLesson(parsedLessonId),
+      courseService.getCourse(parsedCourseId)
     ])
       .then(([lessonData, courseData]) => {
         if (isActive) {
+          const belongsToCourse = courseData.lessons?.some(
+            courseLesson => courseLesson.id === lessonData.id
+          );
+          if (!belongsToCourse) {
+            setError('This lesson does not belong to the requested course.');
+            return;
+          }
           setLesson(lessonData);
           setCourse(courseData);
         }
@@ -80,7 +98,7 @@ export default function LessonPage() {
           setIsLoading(false);
         }
       });
-      
+
     return () => { isActive = false; };
   }, [lessonId, courseId]);
 
@@ -121,13 +139,13 @@ export default function LessonPage() {
         </div>
         <div className="lesson-sidebar">
           <div className="sidebar-tabs">
-            <button 
+            <button
               className={`sidebar-tab ${activeTab === 'playlist' ? 'active' : ''}`}
               onClick={() => setActiveTab('playlist')}
             >
               Playlist
             </button>
-            <button 
+            <button
               className={`sidebar-tab ${activeTab === 'notes' ? 'active' : ''}`}
               onClick={() => setActiveTab('notes')}
             >
@@ -143,8 +161,8 @@ export default function LessonPage() {
                     const isCurrent = l.id === lesson.id;
                     const isDone = !!completedLessons[l.id];
                     return (
-                      <Link 
-                        key={l.id} 
+                      <Link
+                        key={l.id}
                         to={`/course/${course.id}/lesson/${l.id}`}
                         className={`playlist-item ${isCurrent ? 'active' : ''}`}
                       >
@@ -168,7 +186,7 @@ export default function LessonPage() {
                 </div>
               </div>
             )}
-            
+
             {activeTab === 'notes' && (
               <div className="lesson-notes-container">
                 <NotesPanel lessonId={lesson.id} summary={lesson.summary} />

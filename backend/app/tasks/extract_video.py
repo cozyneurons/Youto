@@ -40,7 +40,7 @@ def extract_video_task(self, video_id: str, lesson_id: int):
             try:
                 metadata = extract_video_metadata(f"https://www.youtube.com/watch?v={video_id}")
                 if metadata and metadata.get("description"):
-                    db.refresh(lesson)
+                    db.refresh(lesson, attribute_names=["description"])
                     if not lesson.description:
                         lesson.description = metadata["description"]
             except Exception as meta_exc:

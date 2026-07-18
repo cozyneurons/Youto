@@ -77,13 +77,33 @@ def google_oauth(payload: GoogleOAuthRequest, db: Session = Depends(get_db)):
     token = payload.id_token
     try:
         with httpx.Client() as client:
+            # 1. Verify audience and email_verified via tokeninfo
+            tokeninfo_resp = client.get(
+                "https://oauth2.googleapis.com/tokeninfo",
+                params={"access_token": token}
+            )
+            
+            # Google's tokeninfo endpoint is technically for debugging, but is the only way to check access_token audience.
+            # We don't hard-reject on transient 5xx errors from Google, but we do reject on 400/401 (invalid token).
+            if tokeninfo_resp.status_code == 200:
+                tokeninfo = tokeninfo_resp.json()
+                # Access tokens return 'audience' instead of 'aud'
+                if tokeninfo.get("audience") and tokeninfo.get("audience") != settings.GOOGLE_CLIENT_ID:
+                    raise HTTPException(status_code=401, detail="Token audience mismatch")
+                # Access tokens return 'verified_email' (boolean) instead of 'email_verified' (string)
+                if "verified_email" in tokeninfo and not tokeninfo.get("verified_email"):
+                    raise HTTPException(status_code=401, detail="Email not verified")
+            elif tokeninfo_resp.status_code in (400, 401, 403):
+                raise HTTPException(status_code=401, detail="Invalid Google access token")
+
+            # 2. Get profile information via userinfo
             response = client.get(
                 "https://www.googleapis.com/oauth2/v3/userinfo",
                 headers={"Authorization": f"Bearer {token}"}
             )
         
         if response.status_code != 200:
-            raise HTTPException(status_code=401, detail="Invalid Google access token")
+            raise HTTPException(status_code=401, detail="Failed to fetch user profile")
             
         user_info = response.json()
         email = user_info.get("email")
@@ -124,7 +144,7 @@ def google_oauth(payload: GoogleOAuthRequest, db: Session = Depends(get_db)):
         print(f"Unexpected error in google_oauth: {e}")
         import traceback
         traceback.print_exc()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
 @router.post("/logout")

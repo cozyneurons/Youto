@@ -74,6 +74,22 @@ input {
   position: sticky;
   top: 0;
   z-index: 100;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.navbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .navbar-brand {
@@ -84,22 +100,28 @@ input {
   font-weight: 700;
   letter-spacing: -0.3px;
   color: var(--text-primary);
+  margin-right: 8px;
 }
 
 .navbar-actions {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .nav-link {
   color: var(--text-secondary);
   font-size: 0.9rem;
-  transition: color var(--transition-fast);
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
 }
 
 .nav-link:hover {
   color: var(--text-primary);
+  background: var(--bg-elevated);
 }
 
 .avatar {

@@ -50,9 +50,21 @@ export default function ProfilePage() {
             onChange={e => setName(e.target.value)}
           />
 
-          <button id="profile-save" type="submit" className="btn btn-primary">
-            Save changes
-          </button>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+            <button id="profile-save" type="submit" className="btn btn-primary">
+              Save changes
+            </button>
+            <button 
+              type="button" 
+              className="btn btn-ghost" 
+              onClick={() => {
+                useAuthStore.getState().logout();
+                window.location.href = '/login';
+              }}
+            >
+              Sign out
+            </button>
+          </div>
         </form>
       </main>
     </div>

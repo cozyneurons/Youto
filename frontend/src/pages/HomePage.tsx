@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import Navbar from '../components/common/Navbar';
 
 export default function HomePage() {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
   return (
     <div className="page home-page">
+      <Navbar />
       <section className="hero">
         <div className="hero-badge">YouTube → Structured Course</div>
         <h1 className="hero-title">
