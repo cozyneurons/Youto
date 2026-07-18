@@ -11,5 +11,5 @@ export function useProgress(courseId: number) {
     if (user && courseId) fetchProgress(user.id, courseId);
   }, [user?.id, courseId]);
 
-  return { courseProgress, completedLessons, isLoading, markComplete };
+  return { courseProgress, completedLessons, isLoading, fetchProgress, markComplete };
 }

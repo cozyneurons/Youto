@@ -11,6 +11,7 @@ interface ProgressState {
   fetchProgress: (userId: number, courseId: number) => Promise<void>;
   markComplete: (lessonId: number) => Promise<void>;
   setCompleted: (lessonId: number, value: boolean) => void;
+  clearProgress: () => void;
 }
 
 export const useProgressStore = create<ProgressState>((set) => ({
@@ -22,7 +23,14 @@ export const useProgressStore = create<ProgressState>((set) => ({
     set({ isLoading: true });
     try {
       const progress = await progressService.getCourseProgress(userId, courseId);
-      set({ courseProgress: progress });
+      const newCompleted: Record<number, boolean> = {};
+      progress.completed_lesson_ids.forEach(id => {
+        newCompleted[id] = true;
+      });
+      set({ 
+        courseProgress: progress,
+        completedLessons: newCompleted
+      });
     } finally {
       set({ isLoading: false });
     }
@@ -48,5 +56,9 @@ export const useProgressStore = create<ProgressState>((set) => ({
     set(state => ({
       completedLessons: { ...state.completedLessons, [lessonId]: value },
     }));
+  },
+
+  clearProgress: () => {
+    set({ completedLessons: {}, courseProgress: null });
   },
 }));

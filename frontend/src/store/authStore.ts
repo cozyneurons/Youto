@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { User } from '../types';
 import { authService } from '../services/authService';
 import { ls } from '../utils/localStorage';
+import { useProgressStore } from './progressStore';
 
 interface AuthState {
   user: User | null;
@@ -89,6 +90,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: async () => {
     authService.logout().catch(() => {});
     ls.clear();
+    useProgressStore.getState().clearProgress();
     set({ user: null, token: null, isAuthenticated: false });
   },
 
