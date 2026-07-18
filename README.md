@@ -7,6 +7,7 @@ Convert any YouTube playlist into a structured course with a curvy path UI, vide
 - **Rich Text Note-Taking**: A fully-featured WYSIWYG editor (powered by TipTap) for taking complex notes with formatting, lists, highlights, and inline code.
 - **Interactive Timestamps**: Type a timestamp (e.g. `01:23`) in your notes, and it automatically becomes a clickable button that jumps the video to that exact moment—even if it's styled or highlighted!
 - **AI Video Summaries**: Leverage Google's ultra-fast **Gemini 3.1 Flash Lite** model to instantly generate comprehensive summaries for YouTube videos, handling transcripts up to 100k characters.
+- **Google OAuth Authentication**: Seamless, one-click sign-in and auto-signup using Google OAuth, integrated directly into the frontend and verified securely on the backend via Google's `userinfo` endpoint.
 - **Robust Transcript Fetching**: Uses `youtube-transcript-api` for fast caption retrieval, with an automatic `yt-dlp` fallback to bypass consent walls and download JSON3 subtitles.
 - **Curvy Path UI**: Visualize your course progress along a beautifully animated, winding SVG path. The dotted line dynamically turns green up to your currently active video!
 - **Course Discovery**: Find new courses with sentiment analysis backed by historical Reddit data (Arctic Shift).
@@ -24,7 +25,7 @@ Convert any YouTube playlist into a structured course with a curvy path UI, vide
 | AI | Google Gemini 3.1 Flash Lite (summarization & recommendations) |
 | Video | yt-dlp, youtube-transcript-api, & YouTube Data API v3 |
 | Sentiment | Arctic Shift (PullPush) for historical Reddit data |
-| Auth | JWT + bcrypt |
+| Auth | JWT + bcrypt + Google OAuth (`@react-oauth/google`) |
 | Deploy | Oracle Cloud VM + Netlify + Docker |
 
 ## Local Development
@@ -101,6 +102,8 @@ npm run dev
 | `SECRET_KEY` | JWT signing secret | *(required)* |
 | `YOUTUBE_API_KEY` | YouTube Data API v3 Key | *(required for Discover page)* |
 | `GEMINI_API_KEY` | Google Gemini API key | *(required for summaries and AI recommendations)* |
+| `GOOGLE_CLIENT_ID` | Client ID for Google OAuth login verification | *(required for Google OAuth)* |
+| `VITE_GOOGLE_CLIENT_ID` | Client ID for Google OAuth login button | *(required in frontend .env)* |
 | `ALLOWED_ORIGINS` | CORS origins (JSON array) | `["http://localhost:5173"]` |
 
 ## Architecture
