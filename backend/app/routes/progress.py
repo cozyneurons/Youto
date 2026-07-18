@@ -40,13 +40,21 @@ def get_course_progress(
     return CourseProgressResponse(completed=completed, total=total, percentage=percentage)
 
 
+import asyncio
+from app.routes.ws import manager
+
 @router.post("/lesson/{lesson_id}/complete")
-def mark_complete(
+async def mark_complete(
     lesson_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     """Mark a lesson as completed for the current user."""
+    # Check if lesson exists to get course_id for broadcasting
+    lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
+    if not lesson:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+
     prog = (
         db.query(Progress)
         .filter(Progress.user_id == current_user.id, Progress.lesson_id == lesson_id)
@@ -59,6 +67,39 @@ def mark_complete(
     prog.completed = True
     prog.completion_date = datetime.now(timezone.utc)
     db.commit()
+    
+    from app.models.course_share import CourseShare
+    
+    # Determine allowed recipients based on friendship BEFORE broadcasting (to avoid db calls on the event loop)
+    allowed_recipients = {current_user.id}
+    
+    shares_as_owner = db.query(CourseShare).filter(
+        CourseShare.course_id == lesson.course_id,
+        CourseShare.owner_id == current_user.id,
+        CourseShare.friend_id.isnot(None)
+    ).all()
+    for s in shares_as_owner:
+        allowed_recipients.add(s.friend_id)
+
+    shares_as_friend = db.query(CourseShare).filter(
+        CourseShare.course_id == lesson.course_id,
+        CourseShare.friend_id == current_user.id
+    ).all()
+    for s in shares_as_friend:
+        allowed_recipients.add(s.owner_id)
+        
+    # Broadcast progress update to the course room
+    await manager.broadcast_course_update(
+        course_id=lesson.course_id,
+        message={
+            "type": "PROGRESS_UPDATE",
+            "user_id": current_user.id,
+            "lesson_id": lesson_id,
+            "completed": True
+        },
+        allowed_recipients=allowed_recipients
+    )
+    
     return {"completed": True}
 
 

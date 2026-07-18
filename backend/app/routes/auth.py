@@ -87,15 +87,12 @@ def google_oauth(payload: GoogleOAuthRequest, db: Session = Depends(get_db)):
             # We don't hard-reject on transient 5xx errors from Google, but we do reject on 400/401 (invalid token).
             if tokeninfo_resp.status_code == 200:
                 tokeninfo = tokeninfo_resp.json()
-                # Access tokens return 'audience' instead of 'aud'
-                if tokeninfo.get("audience") and tokeninfo.get("audience") != settings.GOOGLE_CLIENT_ID:
+                if tokeninfo.get("aud") != settings.GOOGLE_CLIENT_ID:
                     raise HTTPException(status_code=401, detail="Token audience mismatch")
-                # Access tokens return 'verified_email' (boolean) instead of 'email_verified' (string)
-                if "verified_email" in tokeninfo and not tokeninfo.get("verified_email"):
+                if str(tokeninfo.get("email_verified", "")).lower() != "true":
                     raise HTTPException(status_code=401, detail="Email not verified")
             elif tokeninfo_resp.status_code in (400, 401, 403):
                 raise HTTPException(status_code=401, detail="Invalid Google access token")
-
             # 2. Get profile information via userinfo
             response = client.get(
                 "https://www.googleapis.com/oauth2/v3/userinfo",

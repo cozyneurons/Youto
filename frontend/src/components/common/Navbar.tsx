@@ -4,7 +4,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useNotificationStore } from '../../store/notificationStore';
 
 export default function Navbar() {
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -20,10 +20,7 @@ export default function Navbar() {
     setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+
 
   const { notifications, fetchNotifications, markAsRead } = useNotificationStore();
   const [showNotifications, setShowNotifications] = useState(false);
@@ -46,7 +43,7 @@ export default function Navbar() {
           </svg>
           Youto
         </Link>
-        
+
         {/* Main Nav Links (Left aligned) */}
         <div className="navbar-nav">
           <Link to="/" className="nav-link">Home</Link>
@@ -78,7 +75,7 @@ export default function Navbar() {
                 )}
               </button>
               {showNotifications && (
-                <div style={{ position: 'absolute', top: '100%', right: '0', width: '300px', background: 'var(--bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '8px', zIndex: 100, boxShadow: 'var(--shadow-md)', marginTop: '8px' }}>
+                <div style={{ position: 'absolute', top: '100%', right: '0', width: '300px', maxWidth: 'calc(100vw - 32px)', background: 'var(--bg-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '8px', zIndex: 100, boxShadow: 'var(--shadow-md)', marginTop: '8px' }}>
                   <h4 style={{ margin: '0 0 8px', fontSize: '14px', borderBottom: '1px solid var(--color-border)', paddingBottom: '4px' }}>Notifications</h4>
                   {notifications.length === 0 ? (
                     <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>No unread notifications</div>
@@ -86,7 +83,7 @@ export default function Navbar() {
                     <div style={{ maxHeight: '300px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {notifications.map(n => (
                         <div key={n.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', background: 'var(--bg-elevated)', padding: '8px', borderRadius: 'var(--radius-sm)' }}>
-                          <div>
+                          <div style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
                             <div>{n.message}</div>
                             <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{new Date(n.created_at).toLocaleDateString()}</div>
                           </div>
@@ -99,7 +96,7 @@ export default function Navbar() {
               )}
             </div>
 
-            <Link to="/profile" className="avatar" title="Profile" style={{ marginLeft: '4px', cursor: 'pointer' }}>
+            <Link to="/profile" className="avatar" title="Profile" aria-label="Profile" style={{ marginLeft: '4px', cursor: 'pointer' }}>
               {user?.name?.charAt(0).toUpperCase() || 'U'}
             </Link>
           </>

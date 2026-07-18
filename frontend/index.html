@@ -1,22 +1,37 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- SEO -->
-    <title>Youto — Learn from YouTube, Actually finish it</title>
-    <meta name="description" content="Convert any YouTube playlist into a structured course with a visual path, AI summaries, and per-lesson notes. Start learning today." />
-    <meta name="theme-color" content="#6366f1" />
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="Youto — YouTube Course Converter" />
-    <meta property="og:description" content="Turn any YouTube playlist into a structured course in seconds." />
-    <meta property="og:type" content="website" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+  <!-- SEO -->
+  <title>Youto — Learn from YouTube, Actually finish it</title>
+  <meta name="description"
+    content="Convert any YouTube playlist into a structured course with a visual path, AI summaries, and per-lesson notes. Start learning today." />
+  <meta name="theme-color" content="#6366f1" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Youto — YouTube Course Converter" />
+  <meta property="og:description" content="Turn any YouTube playlist into a structured course in seconds." />
+  <meta property="og:type" content="website" />
+
+  <!-- Theme Initialization -->
+  <script>
+    (function () {
+      var theme = 'dark';
+      try {
+        theme = localStorage.getItem('theme') || 'dark';
+      } catch (_) { }
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>
