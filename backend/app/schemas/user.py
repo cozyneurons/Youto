@@ -13,6 +13,10 @@ class UserLogin(BaseModel):
     password: str
 
 
+class GoogleOAuthRequest(BaseModel):
+    id_token: str
+
+
 class UserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

@@ -92,7 +92,7 @@ function CourseCard({ course }: { course: Course }) {
         </div>
       </Link>
 
-      <div style={{ padding: '12px 16px', borderTop: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', background: 'var(--bg-surface)' }}>
+      <div style={{ padding: '12px', borderTop: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap', background: 'var(--bg-surface)' }}>
         <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 500, whiteSpace: 'nowrap' }}>
           {course.deadline ? 'Deadline:' : 'Add Deadline:'}
         </span>

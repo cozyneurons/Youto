@@ -1,62 +1,62 @@
 /* ── CSS Custom Properties ──────────────────────────────────────────────────*/
 :root {
   /* Colors */
-  --bg-base:        #0a0a0a;
-  --bg-surface:     #111111;
-  --bg-elevated:    #1a1a1a;
-  --bg-muted:       #222222;
+  --bg-base: #0a0a0a;
+  --bg-surface: #111111;
+  --bg-elevated: #1a1a1a;
+  --bg-muted: #222222;
 
-  --color-border:   #2a2a2a;
-  --color-path:     #3a3a3a;
+  --color-border: #2a2a2a;
+  --color-path: #3a3a3a;
 
-  --text-primary:   #f5f5f5;
+  --text-primary: #f5f5f5;
   --text-secondary: #a1a1aa;
-  --text-muted:     #52525b;
+  --text-muted: #52525b;
 
-  --accent:         #73c2fb;
-  --accent-hover:   #5bb1e7;
-  --accent-light:   #9bd5fc;
-  --success:        #22c55e;
-  --danger:         #ef4444;
-  --warning:        #f59e0b;
+  --accent: #73c2fb;
+  --accent-hover: #5bb1e7;
+  --accent-light: #9bd5fc;
+  --success: #22c55e;
+  --danger: #ef4444;
+  --warning: #f59e0b;
 
   /* Typography */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
   /* Spacing */
-  --radius-sm:  4px;
-  --radius-md:  8px;
-  --radius-lg:  12px;
-  --radius-xl:  16px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
   --radius-full: 9999px;
 
   /* Shadows */
-  --shadow-sm:  0 1px 3px rgba(0,0,0,0.4);
-  --shadow-md:  0 4px 16px rgba(0,0,0,0.5);
-  --shadow-lg:  0 8px 32px rgba(0,0,0,0.6);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
 
   /* Transitions */
   --transition-fast: 150ms ease;
   --transition-base: 250ms ease;
 
   --badge-bg: rgba(10, 10, 10, 0.8);
-  --nav-bg:   rgba(10, 10, 10, 0.9);
+  --nav-bg: rgba(10, 10, 10, 0.9);
 }
 
 :root[data-theme='light'] {
-  --bg-base:        #f9fafb;
-  --bg-surface:     #ffffff;
-  --bg-elevated:    #f3f4f6;
-  --bg-muted:       #e5e7eb;
+  --bg-base: #f9fafb;
+  --bg-surface: #ffffff;
+  --bg-elevated: #f3f4f6;
+  --bg-muted: #e5e7eb;
 
-  --color-border:   #e5e7eb;
-  --color-path:     #d1d5db;
+  --color-border: #e5e7eb;
+  --color-path: #d1d5db;
 
-  --text-primary:   #111827;
+  --text-primary: #111827;
   --text-secondary: #4b5563;
-  --text-muted:     #9ca3af;
+  --text-muted: #9ca3af;
 
-  --badge-bg:       rgba(255, 255, 255, 0.9);
-  --nav-bg:         rgba(255, 255, 255, 0.9);
+  --badge-bg: rgba(255, 255, 255, 0.9);
+  --nav-bg: rgba(255, 255, 255, 0.9);
 }

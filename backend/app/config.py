@@ -15,11 +15,13 @@ class Settings(BaseSettings):
     GROQ_API_KEY: str = ""
     CELERY_BROKER_URL: str = "redis://localhost:6379/0"
     CELERY_RESULT_BACKEND: str = "redis://localhost:6379/0"
+    GOOGLE_CLIENT_ID: str = ""
     ALLOWED_ORIGINS: List[str] = ["http://localhost:5173", "http://localhost:3000"]
 
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
+        extra = "ignore"
 
         @classmethod
         def parse_env_var(cls, field_name: str, raw_val: str):

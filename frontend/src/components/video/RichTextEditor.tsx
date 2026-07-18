@@ -141,12 +141,12 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
   // Keep editor content in sync with external value changes (e.g. initial load)
   useEffect(() => {
     if (!editor) return;
-    
+
     const MARKER = '<!--RICH-->';
     const isRichText = value && value.startsWith(MARKER);
     const expectedHtml = isRichText ? value.slice(MARKER.length) : value;
 
-    if (editor.getHTML() === expectedHtml) return;
+    if (isRichText && editor.getHTML() === expectedHtml) return;
 
     if (isRichText) {
       editor.commands.setContent(expectedHtml, { emitUpdate: false });

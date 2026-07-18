@@ -1,0 +1,100 @@
+youto-backend  |     settings = Settings()
+youto-backend  |                ^^^^^^^^^^
+youto-backend  |   File "/usr/local/lib/python3.11/site-packages/pydantic_settings/main.py", line 140, in __init__
+youto-backend  |     super().__init__(
+youto-backend  |   File "/usr/local/lib/python3.11/site-packages/pydantic/main.py", line 176, in __init__
+youto-backend  |     self.__pydantic_validator__.validate_python(data, self_instance=self)
+youto-backend  | pydantic_core._pydantic_core.ValidationError: 1 validation error for Settings
+youto-backend  | vite_google_client_id
+youto-backend  |   Extra inputs are not permitted [type=extra_forbidden, input_value='307479983859-bsvagitmjh8...s.googleusercontent.com', input_type=str]
+youto-backend  |     For further information visit https://errors.pydantic.dev/2.7/v/extra_forbidden
+youto-backend  | WARNING:  WatchFiles detected changes in 'app/config.py'. Reloading...
+youto-backend  | 2026-07-18 06:34:04 | INFO     | youto | Redis connected: redis://redis:6379
+youto-backend  | INFO:     Started server process [10]
+youto-backend  | INFO:     Waiting for application startup.
+youto-backend  | INFO:     Application startup complete.
+youto-backend  | INFO:     Shutting down
+youto-backend  | INFO:     Waiting for application shutdown.
+youto-backend  | INFO:     Application shutdown complete.
+youto-backend  | INFO:     Finished server process [10]
+youto-backend  | INFO:     Stopping reloader process [1]
+youto-backend  | INFO:     Will watch for changes in these directories: ['/app']
+youto-backend  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+youto-backend  | INFO:     Started reloader process [1] using WatchFiles
+youto-backend  | 2026-07-18 06:34:30 | INFO     | youto | Redis connected: redis://redis:6379
+youto-backend  | INFO:     Started server process [8]
+youto-backend  | INFO:     Waiting for application startup.
+youto-backend  | INFO:     Application startup complete.
+youto-backend  | INFO:     192.168.65.1:40131 - "OPTIONS /api/auth/google-oauth HTTP/1.1" 200 OK
+youto-backend  | INFO:     192.168.65.1:40131 - "POST /api/auth/google-oauth HTTP/1.1" 500 Internal Server Error
+youto-backend  | INFO:     192.168.65.1:34372 - "POST /api/auth/google-oauth HTTP/1.1" 500 Internal Server Error
+youto-backend  | INFO:     192.168.65.1:64076 - "POST /api/auth/google-oauth HTTP/1.1" 500 Internal Server Error
+youto-backend  | WARNING:  WatchFiles detected changes in 'app/routes/auth.py'. Reloading...
+youto-backend  | INFO:     Shutting down
+youto-backend  | INFO:     Waiting for application shutdown.
+youto-backend  | INFO:     Application shutdown complete.
+youto-backend  | INFO:     Finished server process [8]
+youto-backend  | 2026-07-18 07:33:21 | INFO     | youto | Redis connected: redis://redis:6379
+youto-backend  | INFO:     Started server process [25]
+youto-backend  | INFO:     Waiting for application startup.
+youto-backend  | INFO:     Application startup complete.
+youto-backend  | WARNING:  WatchFiles detected changes in 'app/routes/auth.py'. Reloading...
+youto-backend  | INFO:     Shutting down
+youto-backend  | INFO:     Waiting for application shutdown.
+youto-backend  | INFO:     Application shutdown complete.
+youto-backend  | INFO:     Finished server process [25]
+youto-backend  | Process SpawnProcess-3:
+youto-backend  | Traceback (most recent call last):
+youto-backend  |   File "/usr/local/lib/python3.11/multiprocessing/process.py", line 314, in _bootstrap
+youto-backend  |     self.run()
+youto-backend  |   File "/usr/local/lib/python3.11/multiprocessing/process.py", line 108, in run
+youto-backend  |     self._target(*self._args, **self._kwargs)
+youto-backend  |   File "/usr/local/lib/python3.11/site-packages/uvicorn/_subprocess.py", line 80, in subprocess_started
+youto-backend  |     target(sockets=sockets)
+youto-backend  |   File "/usr/local/lib/python3.11/site-packages/uvicorn/server.py", line 65, in run
+youto-backend  |     return asyncio.run(self.serve(sockets=sockets))
+youto-backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+youto-backend  |   File "/usr/local/lib/python3.11/asyncio/runners.py", line 190, in run
+youto-backend  |     return runner.run(main)
+youto-backend  |            ^^^^^^^^^^^^^^^^
+youto-backend  |   File "/usr/local/lib/python3.11/asyncio/runners.py", line 118, in run
+youto-backend  |     return self._loop.run_until_complete(task)
+youto-backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+youto-backend  |   File "uvloop/loop.pyx", line 1518, in uvloop.loop.Loop.run_until_complete
+youto-backend  |   File "/usr/local/lib/python3.11/site-packages/uvicorn/server.py", line 69, in serve
+youto-backend  |     await self._serve(sockets)
+youto-backend  |   File "/usr/local/lib/python3.11/site-packages/uvicorn/server.py", line 76, in _serve
+youto-backend  |     config.load()
+youto-backend  |   File "/usr/local/lib/python3.11/site-packages/uvicorn/config.py", line 434, in load
+youto-backend  |     self.loaded_app = import_from_string(self.app)
+youto-backend  |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+youto-backend  |   File "/usr/local/lib/python3.11/site-packages/uvicorn/importer.py", line 19, in import_from_string
+youto-backend  |     module = importlib.import_module(module_str)
+youto-backend  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+youto-backend  |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+youto-backend  |     return _bootstrap._gcd_import(name[level:], package, level)
+youto-backend  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+youto-backend  |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+youto-backend  |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+youto-backend  |   File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+youto-backend  |   File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+youto-backend  |   File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+youto-backend  |   File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+youto-backend  |   File "/app/app/main.py", line 31, in <module>
+youto-backend  |     from app.routes import auth, playlists, courses, lessons, progress, notes, users, recommendations, notifications  # noqa: E402
+youto-backend  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+youto-backend  |   File "/app/app/routes/__init__.py", line 2, in <module>
+youto-backend  |     from app.routes import auth, playlists, courses, lessons, progress, notes, users, notifications
+youto-backend  |   File "/app/app/routes/auth.py", line 79
+youto-backend  |     async with httpx.AsyncClient() as client:
+youto-backend  |     ^^^^^
+youto-backend  | SyntaxError: 'async with' outside async function
+youto-backend  | WARNING:  WatchFiles detected changes in 'app/routes/auth.py'. Reloading...
+youto-backend  | 2026-07-18 07:34:06 | INFO     | youto | Redis connected: redis://redis:6379
+youto-backend  | INFO:     Started server process [27]
+youto-backend  | INFO:     Waiting for application startup.
+youto-backend  | INFO:     Application startup complete.
+youto-backend  | INFO:     192.168.65.1:56963 - "OPTIONS /api/auth/google-oauth HTTP/1.1" 200 OK
+youto-backend  | INFO:     192.168.65.1:56963 - "POST /api/auth/google-oauth HTTP/1.1" 500 Internal Server Error
+youto-backend  | INFO:     192.168.65.1:61303 - "POST /api/auth/google-oauth HTTP/1.1" 500 Internal Server Error
+youto-backend  | INFO:     192.168.65.1:29457 - "POST /api/auth/google-oauth HTTP/1.1" 500 Internal Server Error

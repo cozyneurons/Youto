@@ -8,10 +8,12 @@ interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  error: string | null;
 
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, name?: string) => Promise<void>;
-  logout: () => void;
+  loginWithGoogle: (idToken: string) => Promise<void>;
+  logout: () => Promise<void>;
   setUser: (user: User) => void;
   hydrate: () => void;
 }
@@ -21,6 +23,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   token: null,
   isAuthenticated: false,
   isLoading: false,
+  error: null,
 
   hydrate: () => {
     const token = ls.getToken();
@@ -47,16 +50,43 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true });
     try {
       const data = await authService.signup(email, password, name);
-      ls.setToken(data.access_token);
-      ls.setRefreshToken(data.refresh_token);
-      ls.setUser(data.user);
-      set({ user: data.user, token: data.access_token, isAuthenticated: true });
+      set({
+        user: data.user,
+        token: data.access_token,
+        isAuthenticated: true,
+        error: null,
+      });
+    } catch (err: any) {
+      set({ error: err.response?.data?.detail || 'Signup failed' });
+      throw err;
     } finally {
       set({ isLoading: false });
     }
   },
 
-  logout: () => {
+  loginWithGoogle: async (idToken) => {
+    set({ isLoading: true });
+    try {
+      const data = await authService.loginWithGoogle(idToken);
+      ls.setToken(data.access_token);
+      ls.setRefreshToken(data.refresh_token);
+      ls.setUser(data.user);
+
+      set({
+        user: data.user,
+        token: data.access_token,
+        isAuthenticated: true,
+        error: null,
+      });
+    } catch (err: any) {
+      set({ error: err.response?.data?.detail || 'Google Login failed' });
+      throw err;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  logout: async () => {
     authService.logout().catch(() => {});
     ls.clear();
     set({ user: null, token: null, isAuthenticated: false });
