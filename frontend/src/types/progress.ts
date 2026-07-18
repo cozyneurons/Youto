@@ -13,4 +13,5 @@ export interface CourseProgress {
   completed: number;
   total: number;
   percentage: number;
+  completed_lesson_ids: number[];
 }

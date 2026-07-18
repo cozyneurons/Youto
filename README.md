@@ -4,12 +4,14 @@ Convert any YouTube playlist into a structured course with a curvy path UI, vide
 
 ## Features
 
+- **Live Course Sharing**: Share your personalized course path with up to 5 friends using secure, unique invite links. 
+- **Real-time Progress Updates**: See your friends' avatars dynamically move along the path as they complete lessons, powered by real-time WebSockets with exponential backoff.
 - **Rich Text Note-Taking**: A fully-featured WYSIWYG editor (powered by TipTap) for taking complex notes with formatting, lists, highlights, and inline code.
 - **Interactive Timestamps**: Type a timestamp (e.g. `01:23`) in your notes, and it automatically becomes a clickable button that jumps the video to that exact moment—even if it's styled or highlighted!
 - **AI Video Summaries**: Leverage Google's ultra-fast **Gemini 3.1 Flash Lite** model to instantly generate comprehensive summaries for YouTube videos, handling transcripts up to 100k characters.
 - **Google OAuth Authentication**: Seamless, one-click sign-in and auto-signup using Google OAuth, integrated directly into the frontend and verified securely on the backend via Google's `userinfo` endpoint.
 - **Robust Transcript Fetching**: Uses `youtube-transcript-api` for fast caption retrieval, with an automatic `yt-dlp` fallback to bypass consent walls and download JSON3 subtitles.
-- **Curvy Path UI**: Visualize your course progress along a beautifully animated, winding SVG path. The dotted line dynamically turns green up to your currently active video!
+- **Curvy Path UI & Dark Mode**: Visualize your course progress along a beautifully animated, winding SVG path in a sleek default Dark Mode interface. The dotted line dynamically turns green up to your currently active video!
 - **Course Discovery**: Find new courses with sentiment analysis backed by historical Reddit data (Arctic Shift).
 
 ## Stack
