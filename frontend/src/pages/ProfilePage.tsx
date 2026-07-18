@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from '../components/common/Navbar';
+import LeetcodeHeatmap from '../components/profile/LeetcodeHeatmap';
+import Loading from '../components/common/Loading';
 import { useAuthStore } from '../store/authStore';
 import api from '../services/api';
 
@@ -8,6 +10,26 @@ export default function ProfilePage() {
   const [name, setName] = useState(user?.name || '');
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
+
+  const [activity, setActivity] = useState<{ heatmap: Record<string, number>, current_streak: number, longest_streak: number } | null>(null);
+  const [activityError, setActivityError] = useState(false);
+  const [activityLoading, setActivityLoading] = useState(true);
+
+  const fetchActivity = () => {
+    setActivityLoading(true);
+    setActivityError(false);
+    api.get('/api/users/activity')
+      .then(res => setActivity(res.data))
+      .catch(err => {
+        console.error(err);
+        setActivityError(true);
+      })
+      .finally(() => setActivityLoading(false));
+  };
+
+  useEffect(() => {
+    fetchActivity();
+  }, []);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,9 +76,9 @@ export default function ProfilePage() {
             <button id="profile-save" type="submit" className="btn btn-primary">
               Save changes
             </button>
-            <button 
-              type="button" 
-              className="btn btn-ghost" 
+            <button
+              type="button"
+              className="btn btn-ghost"
               onClick={() => {
                 useAuthStore.getState().logout();
                 window.location.href = '/login';
@@ -66,6 +88,36 @@ export default function ProfilePage() {
             </button>
           </div>
         </form>
+
+        {activityLoading && (
+          <div className="profile-activity" style={{ marginTop: '48px' }}>
+            <h2 className="page-title" style={{ fontSize: '1.25rem', marginBottom: '16px' }}>Activity</h2>
+            <Loading text="Loading activity..." />
+          </div>
+        )}
+
+        {!activityLoading && activityError && (
+          <div className="profile-activity" style={{ marginTop: '48px' }}>
+            <h2 className="page-title" style={{ fontSize: '1.25rem', marginBottom: '16px' }}>Activity</h2>
+            <div className="error-banner" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>Failed to load activity data.</span>
+              <button onClick={fetchActivity} className="btn btn-sm" style={{ background: 'transparent', border: '1px solid currentColor', color: 'inherit' }}>
+                Retry
+              </button>
+            </div>
+          </div>
+        )}
+
+        {!activityLoading && activity && !activityError && (
+          <div className="profile-activity" style={{ marginTop: '48px' }}>
+            <h2 className="page-title" style={{ fontSize: '1.25rem', marginBottom: '16px' }}>Activity</h2>
+
+            <LeetcodeHeatmap
+              data={activity.heatmap}
+              longestStreak={activity.longest_streak}
+            />
+          </div>
+        )}
       </main>
     </div>
   );

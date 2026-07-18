@@ -1,17 +1,25 @@
 import type { Lesson } from '../../types';
 import VideoNode from './VideoNode';
+import type { FriendProgress } from '../../pages/CoursePage';
 
 interface Props {
   lessons: Lesson[];
   courseId: number;
   completedLessons: Record<number, boolean>;
+  friends?: FriendProgress[];
+  currentUser?: {
+    user_id: number;
+    name: string;
+    avatar_url: string | null;
+    active_index: number;
+  };
 }
 
 /**
  * PathGraph renders a sinusoidal SVG path with VideoNode items
  * alternating left and right along the path — like a winding road.
  */
-export default function PathGraph({ lessons, courseId, completedLessons }: Props) {
+export default function PathGraph({ lessons, courseId, completedLessons, friends = [], currentUser }: Props) {
   const activeIndex = lessons.findIndex((l) => !completedLessons[l.id]);
   const NODE_HEIGHT = 240;
   const SECTION_GAP = 180;
@@ -82,6 +90,10 @@ export default function PathGraph({ lessons, courseId, completedLessons }: Props
   };
 
   const activePoints = activeIndex === -1 ? pts : pts.slice(0, activeIndex);
+  
+  // Aggregate all users (current + friends) to place on the graph
+  const allUsers = [...friends];
+  if (currentUser) allUsers.push(currentUser);
 
   return (
     <div className="path-graph-container" style={{ position: 'relative', minHeight: totalHeight }}>
@@ -126,17 +138,54 @@ export default function PathGraph({ lessons, courseId, completedLessons }: Props
             {div.label}
           </div>
         ))}
-        {lessons.map((lesson, i) => (
-          <div key={lesson.id} style={{ position: 'absolute', left: pts[i].x, top: pts[i].y, transform: 'translate(-50%, -50%)', zIndex: 10 }}>
-            <VideoNode
-              lesson={lesson}
-              courseId={courseId}
-              completed={!!completedLessons[lesson.id]}
-              isActive={i === activeIndex}
-              side={i % 2 === 0 ? 'left' : 'right'}
-            />
-          </div>
-        ))}
+        {lessons.map((lesson, i) => {
+          // Users who are at this exact lesson index
+          const activeUsersAtNode = allUsers.filter(u => u.active_index === i);
+          
+          return (
+            <div key={lesson.id} style={{ position: 'absolute', left: pts[i].x, top: pts[i].y, transform: 'translate(-50%, -50%)', zIndex: 10 }}>
+              <VideoNode
+                lesson={lesson}
+                courseId={courseId}
+                completed={!!completedLessons[lesson.id]}
+                isActive={i === activeIndex}
+                side={i % 2 === 0 ? 'left' : 'right'}
+              />
+              
+              {/* Render avatars of users who are at this node */}
+              {activeUsersAtNode.length > 0 && (
+                <div style={{
+                  position: 'absolute',
+                  top: '-32px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  display: 'flex',
+                  gap: '4px',
+                  alignItems: 'center',
+                  background: 'var(--bg-elevated)',
+                  padding: '4px 6px',
+                  borderRadius: '16px',
+                  border: '1px solid var(--color-border)',
+                  boxShadow: 'var(--shadow-sm)',
+                  pointerEvents: 'none'
+                }}>
+                  {activeUsersAtNode.map(u => (
+                    <div key={u.user_id} title={u.name} style={{
+                      width: '24px', height: '24px', borderRadius: '50%', background: 'var(--accent)',
+                      color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 'bold'
+                    }}>
+                      {u.avatar_url ? (
+                        <img src={u.avatar_url} alt={u.name} style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
+                      ) : (
+                        u.name.charAt(0).toUpperCase()
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

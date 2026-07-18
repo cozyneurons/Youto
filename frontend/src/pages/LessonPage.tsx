@@ -49,16 +49,16 @@ export default function LessonPage() {
   const isCompleted = lesson ? !!completedLessons[lesson.id] : false;
 
   useEffect(() => {
-    if (!lessonId || !courseId) {
-      setIsLoading(false);
-      return;
-    }
-
     let isActive = true;
     setIsLoading(true);
     setError(null);
     setLesson(null);
     setCourse(null);
+
+    if (!lessonId || !courseId) {
+      setIsLoading(false);
+      return;
+    }
 
     const parsedLessonId = Number(lessonId);
     const parsedCourseId = Number(courseId);
