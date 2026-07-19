@@ -30,33 +30,6 @@ export default function HomePage() {
               <Link to="/login" className="btn btn-ghost btn-lg">Sign in</Link>
             </>
           )}
-          <button
-            id="click-me-btn"
-            onClick={() => alert('You clicked me! 🎉')}
-            style={{
-              marginTop: '1rem',
-              padding: '0.75rem 2rem',
-              background: 'linear-gradient(135deg, #a855f7, #6366f1)',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '999px',
-              fontSize: '1rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              boxShadow: '0 4px 20px rgba(168,85,247,0.4)',
-              transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-            }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.05)';
-              (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 28px rgba(168,85,247,0.6)';
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
-              (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 20px rgba(168,85,247,0.4)';
-            }}
-          >
-            ✨ Click Me
-          </button>
         </div>
       </section>
 
