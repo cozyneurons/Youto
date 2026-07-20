@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import { useAuthStore } from './store/authStore';
+import ClickSpark from './components/ui/ClickSpark';
 
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
@@ -32,9 +33,10 @@ export default function App() {
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <ErrorBoundary>
-        <Router>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
+        <ClickSpark sparkColor="#60a5fa" sparkSize={12} sparkRadius={24} sparkCount={12} duration={500} extraScale={1.5}>
+          <Router>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
 
@@ -49,6 +51,7 @@ export default function App() {
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Router>
+        </ClickSpark>
       </ErrorBoundary>
     </GoogleOAuthProvider>
   );
