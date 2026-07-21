@@ -167,16 +167,21 @@ export default function HomePage() {
         .hp2-filter{padding:10px 14px;border-radius:999px;background:var(--white);box-shadow:3px 3px 0 var(--ink);font-size:.82rem;}
         .hp2-filter.active{background:var(--yellow);}
         .hp2-workspace{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(320px,.75fr);gap:26px;align-items:start;}
-        .hp2-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;min-width:0;}
-        .hp2-icard{position:relative;min-width:0;min-height:250px;padding:24px;overflow:hidden;cursor:pointer;border:var(--border);border-radius:20px;background:var(--white);box-shadow:var(--small-shadow);text-align:left;transition:transform 170ms ease,box-shadow 170ms ease,background 170ms ease;}
+        .hp2-grid{position:relative;display:grid;grid-template-columns:1fr;gap:24px;min-width:0;padding-left:42px;}
+        .hp2-grid::before{content:"";position:absolute;top:10px;bottom:10px;left:14px;width:4px;background:var(--ink);border-radius:4px;}
+        .hp2-timeline-item{position:relative;}
+        .hp2-timeline-item.hidden{display:none;}
+        .hp2-timeline-dot{position:absolute;top:28px;left:-42px;width:24px;height:24px;border:3px solid var(--ink);border-radius:50%;z-index:2;transition:transform 200ms ease;}
+        .hp2-timeline-dot::after{content:"";position:absolute;top:50%;left:100%;width:16px;height:4px;background:var(--ink);transform:translateY(-50%);}
+        .hp2-timeline-item:hover .hp2-timeline-dot{transform:scale(1.2);}
+        .hp2-icard{position:relative;width:100%;min-width:0;min-height:180px;padding:24px;overflow:hidden;cursor:pointer;border:var(--border);border-radius:20px;background:var(--white);box-shadow:var(--small-shadow);text-align:left;transition:transform 300ms ease,box-shadow 300ms ease,background 170ms ease;}
         .hp2-icard::after{position:absolute;right:-25px;bottom:-25px;width:90px;height:90px;border:var(--border);border-radius:50%;background:var(--card-c,var(--yellow));content:"";}
-        .hp2-icard:hover,.hp2-icard.sel{transform:translate(-3px,-3px);box-shadow:8px 8px 0 var(--ink);}
+        .hp2-icard:hover{transform:scale(0.95);box-shadow:2px 2px 0 var(--ink);}
         .hp2-icard.sel{background:var(--card-c,var(--yellow));}
         .hp2-icard-top{display:flex;justify-content:space-between;gap:18px;}
         .hp2-icard-idx,.hp2-icard-dur{font-family:"DM Mono",monospace;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;}
-        .hp2-icard h3{max-width:85%;margin:52px 0 12px;font-size:clamp(1.5rem,3vw,2.4rem);letter-spacing:-.045em;line-height:1;}
+        .hp2-icard h3{max-width:85%;margin:42px 0 12px;font-size:clamp(1.5rem,3vw,2.4rem);letter-spacing:-.045em;line-height:1;}
         .hp2-icard p{max-width:86%;margin:0;line-height:1.5;}
-        .hp2-icard.hidden{display:none;}
         /* inspector */
         .hp2-inspector{position:sticky;top:18px;min-width:0;padding:28px;background:var(--ink);color:var(--white);}
         .hp2-badge{padding:8px 11px;border:2px solid var(--white);border-radius:999px;background:var(--pink);color:var(--ink);font-family:"DM Mono",monospace;font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;}
@@ -281,21 +286,23 @@ export default function HomePage() {
                 {incidents.map(inc => {
                   const hidden = filter !== 'all' && inc.category !== filter;
                   return (
-                    <button
-                      key={inc.id}
-                      className={`hp2-icard${inc.id === selectedId ? ' sel' : ''}${hidden ? ' hidden' : ''}`}
-                      type="button"
-                      style={{ '--card-c': inc.color } as React.CSSProperties}
-                      onClick={() => setSelectedId(inc.id)}
-                      aria-label={`View ${inc.title} incident`}
-                    >
-                      <div className="hp2-icard-top">
-                        <span className="hp2-icard-idx">Incident {String(inc.id).padStart(2, '0')}</span>
-                        <span className="hp2-icard-dur">{inc.duration}</span>
-                      </div>
-                      <h3>{inc.title}</h3>
-                      <p>{inc.summary}</p>
-                    </button>
+                    <div key={inc.id} className={`hp2-timeline-item${hidden ? ' hidden' : ''}`}>
+                      <div className="hp2-timeline-dot" style={{ backgroundColor: inc.color }} aria-hidden="true" />
+                      <button
+                        className={`hp2-icard${inc.id === selectedId ? ' sel' : ''}`}
+                        type="button"
+                        style={{ '--card-c': inc.color } as React.CSSProperties}
+                        onClick={() => setSelectedId(inc.id)}
+                        aria-label={`View ${inc.title} incident`}
+                      >
+                        <div className="hp2-icard-top">
+                          <span className="hp2-icard-idx">Incident {String(inc.id).padStart(2, '0')}</span>
+                          <span className="hp2-icard-dur">{inc.duration}</span>
+                        </div>
+                        <h3>{inc.title}</h3>
+                        <p>{inc.summary}</p>
+                      </button>
+                    </div>
                   );
                 })}
               </div>
@@ -331,14 +338,7 @@ export default function HomePage() {
           </section>
 
 
-          {/* ── footer ── */}
-          <footer className="hp2-footer hp2-card">
-            <div>
-              <p className="hp2-eyebrow">Final assessment</p>
-              <h2>{finalAssessment}</h2>
-            </div>
-            <p>Project: Youto Conversion<br />Status: Eventually delivered</p>
-          </footer>
+
         </main>
 
         {/* ── toast ── */}
