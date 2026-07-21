@@ -60,11 +60,7 @@ def test_generate_summary_provider_failure(monkeypatch):
     lesson_id = lesson.id
     db.close()
 
-    # Mock generate_summary to simulate provider failure
-    def mock_generate_summary(transcript):
-        raise Exception("Provider failed")
-    
-    # We patch the generate_summary directly where it is defined since it is imported locally
+    # Patch the LLM service function used by the endpoint.
     monkeypatch.setattr("app.services.llm_service.generate_summary", lambda t: "")
 
     resp = client.post(f"/api/lessons/{lesson_id}/generate-summary")
