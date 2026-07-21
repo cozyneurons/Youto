@@ -330,21 +330,6 @@ export default function HomePage() {
             </div>
           </section>
 
-          {/* ── remediation ── */}
-          <section className="hp2-remediation">
-            {[
-              { eyebrow: 'Convert', title: 'Stop personally watching every 10-hour tutorial.', body: 'Let Gemini 3.1 Flash Lite summarize the transcript and extract the key learning points.' },
-              { eyebrow: 'Structure', title: 'Replace endless scrolling with repeatable systems.', body: 'Use visual course paths, per-lesson notes, and automatic progress tracking.' },
-              { eyebrow: 'Share', title: 'Do not wait seven years to learn something new.', body: 'Share your structured course path with up to 5 friends and track progress together.' },
-            ].map((r, i) => (
-              <article key={i} className="hp2-rcard hp2-card">
-                <span className="hp2-rnum">0{i + 1}</span>
-                <p className="hp2-eyebrow">{r.eyebrow}</p>
-                <h3>{r.title}</h3>
-                <p>{r.body}</p>
-              </article>
-            ))}
-          </section>
 
           {/* ── footer ── */}
           <footer className="hp2-footer hp2-card">
