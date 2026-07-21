@@ -105,23 +105,22 @@ export default function PathGraph({ lessons, courseId, completedLessons, friends
         viewBox={`0 0 ${SVG_WIDTH} ${totalHeight}`}
         preserveAspectRatio="xMidYMin meet"
       >
-        {/* Base grey path */}
+        {/* Base dark path */}
         <path
           d={buildPath(pts)}
           stroke="var(--color-path)"
-          strokeWidth="3"
+          strokeWidth="4"
           fill="none"
-          strokeDasharray="8 6"
+          strokeDasharray="12 12"
           strokeLinecap="round"
         />
-        {/* Completed green path */}
+        {/* Completed blue path */}
         {activePoints.length > 0 && (
           <path
             d={buildPath(activePoints)}
             stroke="var(--accent)"
-            strokeWidth="4"
+            strokeWidth="6"
             fill="none"
-            strokeDasharray="8 6"
             strokeLinecap="round"
           />
         )}
