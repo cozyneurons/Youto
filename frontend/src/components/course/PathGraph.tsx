@@ -1,7 +1,14 @@
+/* ── PathGraph ───────────────────────────────────────────────────────────────
+   Renders a sinusoidal SVG "winding road" with VideoNode items alternating
+   left and right.  Phase-group dividers (section badges) float between nodes
+   wherever the lesson phase label changes. Friend / current-user avatars are
+   pinned above whichever node they are currently at. */
+
 import type { Lesson } from '../../types';
 import VideoNode from './VideoNode';
 import type { FriendProgress } from '../../pages/CoursePage';
 
+/* ── Prop types ─────────────────────────────────────────────────────────────*/
 interface Props {
   lessons: Lesson[];
   courseId: number;
@@ -11,7 +18,7 @@ interface Props {
     user_id: number;
     name: string;
     avatar_url: string | null;
-    active_index: number;
+    active_index: number; // index of the lesson the user is currently on
   };
 }
 
@@ -20,6 +27,11 @@ interface Props {
  * alternating left and right along the path — like a winding road.
  */
 export default function PathGraph({ lessons, courseId, completedLessons, friends = [], currentUser }: Props) {
+  /* ── Layout constants ────────────────────────────────────────────────────
+     NODE_HEIGHT  → vertical gap between consecutive lesson nodes
+     SECTION_GAP  → extra vertical space inserted between phase groups
+     SVG_WIDTH    → fixed canvas width; nodes are centred within it
+     amp          → how far left/right nodes swing from the centre line     */
   const activeIndex = lessons.findIndex((l) => !completedLessons[l.id]);
   const NODE_HEIGHT = 240;
   const SECTION_GAP = 180;
@@ -27,6 +39,10 @@ export default function PathGraph({ lessons, courseId, completedLessons, friends
   const cx = SVG_WIDTH / 2;
   const amp = 90; // horizontal amplitude
 
+  /* ── Phase tracking ──────────────────────────────────────────────────────
+     Walk lessons in order to detect phase-group boundaries.
+     currentSectionIndex increments each time the phase label changes,
+     which pushes subsequent nodes further down via SECTION_GAP. */
   let currentSectionIndex = 0;
   let currentPhase = "Phase 1";
   
@@ -37,6 +53,9 @@ export default function PathGraph({ lessons, courseId, completedLessons, friends
     }
   }
 
+  /* ── Build node coordinate list (pts) ───────────────────────────────────
+     Each entry stores the x/y pixel position for that lesson's node,
+     along with its section index and phase name for divider placement. */
   const pts = lessons.map((lesson, i) => {
     const rawPhase = lesson.phase?.trim();
     const phaseName = (rawPhase && rawPhase !== "") ? rawPhase : currentPhase;
@@ -48,16 +67,20 @@ export default function PathGraph({ lessons, courseId, completedLessons, friends
     }
     
     return {
-      x: i % 2 === 0 ? cx - amp : cx + amp,
+      x: i % 2 === 0 ? cx - amp : cx + amp, // alternate left / right
       y: 100 + i * NODE_HEIGHT + currentSectionIndex * SECTION_GAP,
       sectionIndex: currentSectionIndex,
       phaseName: currentPhase,
     };
   });
 
+  // Total SVG canvas height needed to contain all nodes plus bottom padding
   const totalHeight = pts.length > 0 ? pts[pts.length - 1].y + 100 : 0;
 
-  // Build the dividers array based on where section transitions happen
+  /* ── Build section dividers ─────────────────────────────────────────────
+     A divider (phase badge) is placed at y=0 for the first phase, then
+     halfway between the last node of the old phase and the first node of
+     the new phase whenever the section index increments. */
   const dividers = [];
   if (pts.length > 0) {
     // First divider is always at the top
@@ -75,7 +98,10 @@ export default function PathGraph({ lessons, courseId, completedLessons, friends
     }
   }
 
-  // Build SVG cubic bezier path through a subset of node y positions
+  /* ── SVG path builder ───────────────────────────────────────────────────
+     Generates an SVG cubic-Bézier "d" string through the supplied points.
+     The path always starts at the top-centre (cx, 0) so there is a lead-in
+     segment before the first node. */
   const buildPath = (pointsToDraw: typeof pts) => {
     if (pointsToDraw.length === 0) return '';
     let d = `M ${cx} 0`;
@@ -89,15 +115,20 @@ export default function PathGraph({ lessons, courseId, completedLessons, friends
     return d;
   };
 
+  /* ── Active (completed) path slice ─────────────────────────────────────
+     activePoints covers all nodes up to (but not including) the first
+     incomplete lesson, so the blue overlay only covers completed segments. */
   const activePoints = activeIndex === -1 ? pts : pts.slice(0, activeIndex);
   
   // Aggregate all users (current + friends) to place on the graph
   const allUsers = [...friends];
   if (currentUser) allUsers.push(currentUser);
 
+  /* ── Render ─────────────────────────────────────────────────────────────*/
   return (
     <div className="path-graph-container" style={{ position: 'relative', minHeight: totalHeight }}>
-      {/* SVG path */}
+      {/* ── SVG layer: draws the dashed background path and the solid
+           blue completed-progress overlay on top of it ── */}
       <svg
         className="path-svg"
         width={SVG_WIDTH}
@@ -105,7 +136,7 @@ export default function PathGraph({ lessons, courseId, completedLessons, friends
         viewBox={`0 0 ${SVG_WIDTH} ${totalHeight}`}
         preserveAspectRatio="xMidYMin meet"
       >
-        {/* Base dark path */}
+        {/* Base dark dashed path — represents the full course route */}
         <path
           d={buildPath(pts)}
           stroke="var(--color-path)"
@@ -114,7 +145,7 @@ export default function PathGraph({ lessons, courseId, completedLessons, friends
           strokeDasharray="12 12"
           strokeLinecap="round"
         />
-        {/* Completed blue path */}
+        {/* Solid blue overlay — covers only the completed portion of the path */}
         {activePoints.length > 0 && (
           <path
             d={buildPath(activePoints)}
@@ -126,8 +157,10 @@ export default function PathGraph({ lessons, courseId, completedLessons, friends
         )}
       </svg>
 
-      {/* Nodes overlaid on SVG */}
+      {/* ── HTML node layer: absolutely positioned over the SVG ──
+           Phase-badge dividers come first so nodes render on top of them. */}
       <div className="path-nodes" style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: SVG_WIDTH, height: totalHeight }}>
+        {/* Phase / section labels floating at each phase boundary */}
         {dividers.map(div => (
           <div
             key={`div-${div.id}`}
@@ -137,6 +170,9 @@ export default function PathGraph({ lessons, courseId, completedLessons, friends
             {div.label}
           </div>
         ))}
+
+        {/* Individual lesson nodes — each also shows avatars of any users
+             (current user or friends) who are currently at that lesson. */}
         {lessons.map((lesson, i) => {
           // Users who are at this exact lesson index
           const activeUsersAtNode = allUsers.filter(u => u.active_index === i);

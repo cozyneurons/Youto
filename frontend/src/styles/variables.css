@@ -1,18 +1,31 @@
 /* ── CSS Custom Properties ──────────────────────────────────────────────────*/
+/* Single source of truth for all design tokens used across the app.
+   All colours follow the neo-brutalist palette from the home page. */
 :root {
-  /* Colors */
+  /* ── Background layers ──
+     paper  → page canvas
+     white  → card / surface
+     muted  → subtle highlight / divider */
   --bg-base: #f4efe4; /* paper */
   --bg-surface: #fffdf8; /* white */
   --bg-elevated: #fffdf8;
   --bg-muted: rgba(23, 23, 23, 0.1);
 
+  /* ── Border / path colour → solid ink ── */
   --color-border: #171717; /* ink */
   --color-path: #171717;
 
+  /* ── Text hierarchy (all ink-based, varying opacity) ── */
   --text-primary: #171717;
   --text-secondary: rgba(23, 23, 23, 0.8);
   --text-muted: rgba(23, 23, 23, 0.5);
 
+  /* ── Accent palette (neo-brutalist primary colours) ──
+     blue   → primary interactive / progress
+     purple → hover state / accent alternate
+     green  → success / completion
+     pink   → danger / error
+     yellow → warning / highlight */
   --accent: #8cbcff; /* blue */
   --accent-hover: #b99cff; /* purple */
   --accent-light: #9bd5fc;
@@ -20,33 +33,38 @@
   --danger: #ff9fca; /* pink */
   --warning: #ffd84d; /* yellow */
   
+  /* Shorthand for the dark ink colour used in borders and text */
   --ink: #171717;
 
-  /* Typography */
+  /* ── Typography ──
+     Space Grotesk for headings / body, DM Mono for labels / code */
   --font-sans: 'Space Grotesk', 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'DM Mono', 'JetBrains Mono', 'Fira Code', monospace;
 
-  /* Spacing */
+  /* ── Border radius scale ── */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 22px;
   --radius-full: 9999px;
 
-  /* Shadows */
+  /* ── Neo-brutalist hard shadows (offset, no blur) ──
+     sm → card, md → component, lg → modal/overlay */
   --shadow-sm: 4px 4px 0 var(--ink);
   --shadow-md: 7px 7px 0 var(--ink);
   --shadow-lg: 10px 10px 0 var(--ink);
+  /* The signature 3px black border used on all interactive elements */
   --border-neo: 3px solid var(--ink);
 
-  /* Transitions */
+  /* ── Animation timing ── */
   --transition-fast: 150ms ease;
   --transition-base: 250ms ease;
 
+  /* ── Component-specific surface tokens ── */
   --badge-bg: rgba(255, 255, 255, 0.9);
   --nav-bg: rgba(255, 255, 255, 0.9);
 
-  /* Heatmap light mode colors */
+  /* ── Heatmap intensity scale (lightest → darkest green) ── */
   --heatmap-0: #d1d5db;
   --heatmap-1: #9be9a8;
   --heatmap-2: #40c463;
