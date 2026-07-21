@@ -101,7 +101,6 @@ export default function HomePage() {
     : 'A routine tutorial search became a three-hour rabbit hole involving cat videos, clickbait, and one extremely persuasive algorithm.';
   const eyebrow = dreamMode ? 'Procrastination Mode · Doomscrolling Hypothesis' : 'Youto Operations · Conversion Postmortem';
   const symbolLabel = dreamMode ? 'Focus status unknown' : 'Learning overdue';
-  const finalAssessment = dreamMode ? 'Legendary procrastinator. Possibly unconscious learner.' : 'Legendary procrastinator. Questionable focus.';
 
   return (
     <>
@@ -131,10 +130,10 @@ export default function HomePage() {
         .hp2-btn-primary:hover,.hp2-btn-secondary:hover,.hp2-filter:hover,.hp2-text-btn:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink);}
         .hp2-btn-primary:active,.hp2-btn-secondary:active,.hp2-filter:active,.hp2-text-btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink);}
         .hp2-btn-primary:disabled{cursor:progress;opacity:.65;}
-        .hp2-hero-symbol{position:relative;z-index:1;overflow:hidden;display:flex;align-items:center;justify-content:center;min-height:540px;background:#FAF6EA;}
+        .hp2-hero-symbol{position:relative;z-index:1;overflow:visible;display:flex;align-items:center;justify-content:center;min-height:540px;background:#FAF6EA;}
         .hp2.dream .hp2-hero-symbol{background:#ede8f7;}
         .hp2-hero-symbol p{position:absolute;right:20px;bottom:16px;left:20px;margin:0;font-family:"DM Mono",monospace;font-size:.74rem;font-weight:500;letter-spacing:.08em;text-align:center;text-transform:uppercase;color:var(--ink);}
-        .hp2-illus{width:100%;height:100%;display:block;min-height:540px;}
+        .hp2-illus{width:100%;height:100%;display:block;min-height:540px;transform:translateX(-55px);}
 
         /* stats hanging thread */
         .hp2-stats-thread{position:absolute;top:-44px;left:0;right:0;height:100px;pointer-events:none;z-index:2;}
@@ -168,24 +167,24 @@ export default function HomePage() {
         .hp2-filters{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px;}
         .hp2-filter{padding:10px 14px;border-radius:999px;background:var(--white);box-shadow:3px 3px 0 var(--ink);font-size:.82rem;}
         .hp2-filter.active{background:var(--yellow);}
-        .hp2-workspace{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(320px,.75fr);gap:26px;align-items:start;}
-        .hp2-grid{position:relative;display:grid;grid-template-columns:1fr;gap:24px;min-width:0;padding-left:42px;}
+        .hp2-workspace{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(320px,0.9fr);gap:22px;align-items:start;}
+        .hp2-grid{position:relative;display:grid;grid-template-columns:1fr;gap:16px;min-width:0;padding-left:36px;}
         .hp2-grid::before{content:"";position:absolute;top:10px;bottom:10px;left:14px;width:4px;background:var(--ink);border-radius:4px;}
         .hp2-timeline-item{position:relative;}
         .hp2-timeline-item.hidden{display:none;}
-        .hp2-timeline-dot{position:absolute;top:28px;left:-42px;width:24px;height:24px;border:3px solid var(--ink);border-radius:50%;z-index:2;transition:transform 200ms ease;}
-        .hp2-timeline-dot::after{content:"";position:absolute;top:50%;left:100%;width:16px;height:4px;background:var(--ink);transform:translateY(-50%);}
+        .hp2-timeline-dot{position:absolute;top:24px;left:-36px;width:20px;height:20px;border:3px solid var(--ink);border-radius:50%;z-index:2;transition:transform 200ms ease;}
+        .hp2-timeline-dot::after{content:"";position:absolute;top:50%;left:100%;width:14px;height:4px;background:var(--ink);transform:translateY(-50%);}
         .hp2-timeline-item:hover .hp2-timeline-dot{transform:scale(1.2);}
-        .hp2-icard{position:relative;width:100%;min-width:0;min-height:180px;padding:24px;overflow:hidden;cursor:pointer;border:var(--border);border-radius:20px;background:var(--white);box-shadow:var(--small-shadow);text-align:left;transition:transform 300ms ease,box-shadow 300ms ease,background 170ms ease;}
-        .hp2-icard::after{position:absolute;right:-25px;bottom:-25px;width:90px;height:90px;border:var(--border);border-radius:50%;background:var(--card-c,var(--yellow));content:"";}
+        .hp2-icard{position:relative;width:100%;min-width:0;min-height:140px;padding:18px 20px;overflow:hidden;cursor:pointer;border:var(--border);border-radius:18px;background:var(--white);box-shadow:var(--small-shadow);text-align:left;transition:transform 300ms ease,box-shadow 300ms ease,background 170ms ease;}
+        .hp2-icard::after{position:absolute;right:-25px;bottom:-25px;width:80px;height:80px;border:var(--border);border-radius:50%;background:var(--card-c,var(--yellow));content:"";}
         .hp2-icard:hover{transform:scale(0.95);box-shadow:2px 2px 0 var(--ink);}
         .hp2-icard.sel{background:var(--card-c,var(--yellow));}
         .hp2-icard-top{display:flex;justify-content:space-between;gap:18px;}
         .hp2-icard-idx,.hp2-icard-dur{font-family:"DM Mono",monospace;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;}
-        .hp2-icard h3{max-width:85%;margin:42px 0 12px;font-size:clamp(1.5rem,3vw,2.4rem);letter-spacing:-.045em;line-height:1;}
-        .hp2-icard p{max-width:86%;margin:0;line-height:1.5;}
+        .hp2-icard h3{max-width:90%;margin:20px 0 8px;font-size:clamp(1.2rem,2.2vw,1.75rem);letter-spacing:-.045em;line-height:1.1;}
+        .hp2-icard p{max-width:90%;margin:0;font-size:.92rem;line-height:1.45;}
         /* inspector */
-        .hp2-inspector{position:sticky;top:18px;min-width:0;padding:28px;background:var(--ink);color:var(--white);}
+        .hp2-inspector{position:sticky;top:88px;min-width:0;padding:28px;background:var(--ink);color:var(--white);}
         .hp2-badge{padding:8px 11px;border:2px solid var(--white);border-radius:999px;background:var(--pink);color:var(--ink);font-family:"DM Mono",monospace;font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;}
         .hp2-inc-num,.hp2-detail-cat{font-family:"DM Mono",monospace;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;}
         .hp2-detail-cat{margin:44px 0 10px;color:var(--yellow);}
@@ -235,7 +234,7 @@ export default function HomePage() {
             </div>
 
             <div className="hp2-hero-symbol" aria-hidden="true">
-              <svg className="hp2-illus" viewBox="220 5 625 435" xmlns="http://www.w3.org/2000/svg" fontFamily="Poppins, sans-serif" preserveAspectRatio="xMidYMid meet">
+              <svg className="hp2-illus" viewBox="210 0 635 440" xmlns="http://www.w3.org/2000/svg" fontFamily="Poppins, sans-serif" preserveAspectRatio="xMidYMid meet">
                 <g id="cubes">
                   <path d="M 300.0 276.0 L 332.0 260.0 L 332.0 306.0 L 300.0 322.0 Z" fill="#D0BD86" stroke="#17140F" strokeWidth="2.5" strokeLinejoin="round" />
                   <path d="M 268.0 260.0 L 300.0 276.0 L 300.0 322.0 L 268.0 306.0 Z" fill="#E4D4A8" stroke="#17140F" strokeWidth="2.5" strokeLinejoin="round" />
@@ -506,10 +505,6 @@ export default function HomePage() {
                     <strong>{selected.system}</strong>
                   </div>
                   <span className="hp2-sys-icon" aria-hidden="true">{selected.icon}</span>
-                </div>
-                <div className="hp2-inspector-actions">
-                  <button className="hp2-btn-secondary hp2-dark-btn" onClick={handleNext} type="button">Next incident</button>
-                  <button className="hp2-text-btn" onClick={handleCopyReport} type="button">Copy postmortem</button>
                 </div>
               </aside>
             </div>
