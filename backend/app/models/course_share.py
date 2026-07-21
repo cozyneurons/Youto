@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func, Index
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func, Index, text
 from sqlalchemy.orm import relationship
 from app.models.base import Base
 
@@ -11,8 +11,8 @@ class CourseShare(Base):
             'ix_unique_course_share_friend',
             'owner_id', 'course_id', 'friend_id',
             unique=True,
-            postgresql_where='friend_id IS NOT NULL',
-            sqlite_where='friend_id IS NOT NULL'
+            postgresql_where=text('friend_id IS NOT NULL'),
+            sqlite_where=text('friend_id IS NOT NULL')
         ),
     )
 
