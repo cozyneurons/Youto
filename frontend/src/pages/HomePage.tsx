@@ -136,9 +136,18 @@ export default function HomePage() {
         .hp2-hero-symbol p{position:absolute;right:20px;bottom:16px;left:20px;margin:0;font-family:"DM Mono",monospace;font-size:.74rem;font-weight:500;letter-spacing:.08em;text-align:center;text-transform:uppercase;color:var(--ink);}
         .hp2-illus{width:100%;height:100%;display:block;min-height:540px;}
 
-        /* stats */
-        .hp2-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;margin-top:26px;}
-        .hp2-stat{display:flex;flex-direction:column;min-width:0;min-height:100px;padding:10px;}
+        /* stats hanging thread */
+        .hp2-stats-thread{position:absolute;top:-44px;left:0;right:0;height:100px;pointer-events:none;z-index:2;}
+        .hp2-thread-svg{width:100%;height:100%;display:block;overflow:visible;}
+        .hp2-stats{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;margin-top:55px;}
+        .hp2-stat{position:relative;display:flex;flex-direction:column;min-width:0;min-height:125px;padding:22px 16px 16px;transition:transform 250ms ease,box-shadow 250ms ease;}
+        .hp2-stat:nth-of-type(1){margin-top:15px;}
+        .hp2-stat:nth-of-type(2){margin-top:5px;}
+        .hp2-stat:nth-of-type(3){margin-top:25px;}
+        .hp2-stat:nth-of-type(4){margin-top:0px;}
+        .hp2-stat::before{content:"";position:absolute;top:-24px;bottom:100%;left:50%;transform:translateX(-50%);width:2px;background:var(--ink);z-index:1;}
+        .hp2-stat::after{content:"";position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:12px;height:12px;border:2.5px solid var(--ink);border-radius:50%;background:var(--paper);z-index:3;box-shadow:inset 1px 1px 2px rgba(0,0,0,0.18);}
+        .hp2-stat:hover{transform:translateY(-4px);box-shadow:10px 10px 0 var(--ink);}
         .hp2-stat.yellow{background:var(--yellow);}.hp2-stat.blue{background:var(--blue);}.hp2-stat.pink{background:var(--pink);}.hp2-stat.green{background:var(--green);}
         .hp2-stat p{margin:0;font-family:"DM Mono",monospace;font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;}
         .hp2-stat strong{margin-top:auto;font-size:clamp(2.6rem,4vw,3.6rem);letter-spacing:-.08em;line-height:1;}
@@ -204,7 +213,7 @@ export default function HomePage() {
         /* toast */
         .hp2-toast{position:fixed;right:24px;bottom:24px;z-index:20;padding:14px 18px;border:var(--border);border-radius:12px;background:var(--yellow);box-shadow:var(--small-shadow);font-weight:700;opacity:0;pointer-events:none;transform:translateY(20px);transition:opacity 200ms ease,transform 200ms ease;}
         .hp2-toast.vis{opacity:1;transform:translateY(0);}
-        @media(max-width:1050px){.hp2-hero{grid-template-columns:1fr;}.hp2-hero-symbol{min-height:330px;border-top:var(--border);border-left:0;}.hp2-stats{grid-template-columns:repeat(2,minmax(0,1fr));}.hp2-workspace{grid-template-columns:1fr;}.hp2-inspector{position:relative;top:auto;}}
+        @media(max-width:1050px){.hp2-hero{grid-template-columns:1fr;}.hp2-hero-symbol{min-height:330px;border-top:var(--border);border-left:0;}.hp2-stats{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:26px;}.hp2-stats-thread{display:none;}.hp2-stat{transform:none!important;margin-top:0!important;}.hp2-workspace{grid-template-columns:1fr;}.hp2-inspector{position:relative;top:auto;}}
         @media(max-width:760px){.hp2-shell{width:min(100% - 22px,1440px);padding-top:14px;}.hp2-card{border-radius:17px;box-shadow:5px 5px 0 var(--ink);}.hp2-hero{min-height:auto;}.hp2-hero-copy{padding:32px 24px 40px;}.hp2-hero-copy h1{font-size:clamp(3.2rem,18vw,5.6rem);}.hp2-hero::before{display:none;}.hp2-hero-symbol{min-height:280px;}.hp2-stats,.hp2-grid,.hp2-remediation{grid-template-columns:1fr;}.hp2-stat{min-height:120px;}.hp2-audit-head,.hp2-audit-result,.hp2-section-head,.hp2-footer{align-items:flex-start;flex-direction:column;}.hp2-grade{width:72px;}.hp2-filters{justify-content:flex-start;}.hp2-filter{font-size:.75rem;}.hp2-icard{min-height:225px;}.hp2-icard h3{margin-top:40px;}.hp2-inspector{padding:24px;}.hp2-footer>p{text-align:left;}.hp2-toast{right:12px;bottom:12px;left:12px;text-align:center;}}
         @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:1ms!important;animation-iteration-count:1!important;transition-duration:1ms!important;}}
       `}</style>
@@ -408,6 +417,11 @@ export default function HomePage() {
 
           {/* ── stats ── */}
           <section className="hp2-stats" aria-label="Project statistics">
+            <div className="hp2-stats-thread" aria-hidden="true">
+              <svg viewBox="0 0 1000 100" preserveAspectRatio="none" className="hp2-thread-svg">
+                <path d="M -20,30 C 50,30 80,35 125,35 C 225,35 275,25 375,25 C 475,25 525,45 625,45 C 725,45 775,20 875,20 C 950,20 980,15 1020,15" fill="none" stroke="var(--ink)" strokeWidth="2.5" strokeLinecap="round" />
+              </svg>
+            </div>
             {[
               { cls: 'yellow', label: 'Total lost time', val: '20', sub: 'hours lost to recommended videos' },
               { cls: 'blue', label: 'Actual learning', val: '10', sub: 'minutes of actual tutorial watched' },
