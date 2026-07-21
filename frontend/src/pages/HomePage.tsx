@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Navbar from '../components/common/Navbar';
 
 /* ── data ──────────────────────────────────────────────────────────────────── */
@@ -34,21 +34,11 @@ export default function HomePage() {
   const [selectedId, setSelectedId] = useState(1);
   const [filter, setFilter] = useState<Filter>('all');
   const [dreamMode, setDreamMode] = useState(false);
-  const [toast, setToast] = useState('');
-  const [toastVisible, setToastVisible] = useState(false);
 
   const auditTimer = useRef<ReturnType<typeof setInterval> | null>(null);
-  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const visible = incidents.filter(i => filter === 'all' || i.category === filter);
   const selected = incidents.find(i => i.id === selectedId) ?? incidents[0];
 
-  const showToast = useCallback((msg: string) => {
-    setToast(msg);
-    setToastVisible(true);
-    if (toastTimer.current) clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToastVisible(false), 2200);
-  }, []);
 
   const handleFilter = (f: Filter) => {
     setFilter(f);
@@ -58,40 +48,11 @@ export default function HomePage() {
     }
   };
 
-  const handleNext = () => {
-    const idx = visible.findIndex(i => i.id === selectedId);
-    const next = idx === -1 ? 0 : (idx + 1) % visible.length;
-    setSelectedId(visible[next].id);
-  };
-
   const handleDream = () => setDreamMode(d => !d);
-  const handleCopyReport = async () => {
-    const report = [
-      'YOUTO LEARNING POSTMORTEM', '',
-      `Incident: ${selected.title}`,
-      `Category: ${selected.categoryLabel}`,
-      `Duration: ${selected.duration}`, '',
-      `What happened: ${selected.issue}`, '',
-      `Recommended response: ${selected.action}`, '',
-      `System required: ${selected.system}`, '',
-      'Final assessment: Legendary procrastinator. Questionable focus.'
-    ].join('\n');
-    try {
-      await navigator.clipboard.writeText(report);
-    } catch {
-      const ta = document.createElement('textarea');
-      ta.value = report; ta.setAttribute('readonly', '');
-      ta.style.cssText = 'position:fixed;opacity:0';
-      document.body.appendChild(ta); ta.select();
-      document.execCommand('copy'); ta.remove();
-    }
-    showToast('Postmortem copied.');
-  };
 
   useEffect(() => {
     return () => {
       if (auditTimer.current) clearInterval(auditTimer.current);
-      if (toastTimer.current) clearTimeout(toastTimer.current);
     };
   }, []);
 
@@ -133,7 +94,7 @@ export default function HomePage() {
         .hp2-hero-symbol{position:relative;z-index:1;overflow:visible;display:flex;align-items:center;justify-content:center;min-height:540px;background:#FAF6EA;}
         .hp2.dream .hp2-hero-symbol{background:#ede8f7;}
         .hp2-hero-symbol p{position:absolute;right:20px;bottom:16px;left:20px;margin:0;font-family:"DM Mono",monospace;font-size:.74rem;font-weight:500;letter-spacing:.08em;text-align:center;text-transform:uppercase;color:var(--ink);}
-        .hp2-illus{width:100%;height:100%;display:block;min-height:540px;transform:translateX(-55px);}
+        .hp2-illus{width:100%;height:100%;display:block;}
 
         /* stats hanging thread */
         .hp2-stats-thread{position:absolute;top:-44px;left:0;right:0;height:100px;pointer-events:none;z-index:2;}
@@ -209,11 +170,9 @@ export default function HomePage() {
         /* footer */
         .hp2-footer{margin-top:26px;padding:clamp(28px,5vw,48px);background:var(--green);}
         .hp2-footer>p{margin:0;font-family:"DM Mono",monospace;font-size:.78rem;line-height:1.7;text-align:right;text-transform:uppercase;}
-        /* toast */
-        .hp2-toast{position:fixed;right:24px;bottom:24px;z-index:20;padding:14px 18px;border:var(--border);border-radius:12px;background:var(--yellow);box-shadow:var(--small-shadow);font-weight:700;opacity:0;pointer-events:none;transform:translateY(20px);transition:opacity 200ms ease,transform 200ms ease;}
-        .hp2-toast.vis{opacity:1;transform:translateY(0);}
+
         @media(max-width:1050px){.hp2-hero{grid-template-columns:1fr;}.hp2-hero-symbol{min-height:330px;border-top:var(--border);border-left:0;}.hp2-stats{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:26px;}.hp2-stats-thread{display:none;}.hp2-stat{transform:none!important;margin-top:0!important;}.hp2-workspace{grid-template-columns:1fr;}.hp2-inspector{position:relative;top:auto;}}
-        @media(max-width:760px){.hp2-shell{width:min(100% - 22px,1440px);padding-top:14px;}.hp2-card{border-radius:17px;box-shadow:5px 5px 0 var(--ink);}.hp2-hero{min-height:auto;}.hp2-hero-copy{padding:32px 24px 40px;}.hp2-hero-copy h1{font-size:clamp(3.2rem,18vw,5.6rem);}.hp2-hero::before{display:none;}.hp2-hero-symbol{min-height:280px;}.hp2-stats,.hp2-grid,.hp2-remediation{grid-template-columns:1fr;}.hp2-stat{min-height:120px;}.hp2-audit-head,.hp2-audit-result,.hp2-section-head,.hp2-footer{align-items:flex-start;flex-direction:column;}.hp2-grade{width:72px;}.hp2-filters{justify-content:flex-start;}.hp2-filter{font-size:.75rem;}.hp2-icard{min-height:225px;}.hp2-icard h3{margin-top:40px;}.hp2-inspector{padding:24px;}.hp2-footer>p{text-align:left;}.hp2-toast{right:12px;bottom:12px;left:12px;text-align:center;}}
+        @media(max-width:760px){.hp2-shell{width:min(100% - 22px,1440px);padding-top:14px;}.hp2-card{border-radius:17px;box-shadow:5px 5px 0 var(--ink);}.hp2-hero{min-height:auto;}.hp2-hero-copy{padding:32px 24px 40px;}.hp2-hero-copy h1{font-size:clamp(3.2rem,18vw,5.6rem);}.hp2-hero::before{display:none;}.hp2-hero-symbol{min-height:280px;}.hp2-stats,.hp2-grid,.hp2-remediation{grid-template-columns:1fr;}.hp2-stat{min-height:120px;}.hp2-audit-head,.hp2-audit-result,.hp2-section-head,.hp2-footer{align-items:flex-start;flex-direction:column;}.hp2-grade{width:72px;}.hp2-filters{justify-content:flex-start;}.hp2-filter{font-size:.75rem;}.hp2-icard{min-height:225px;}.hp2-icard h3{margin-top:40px;}.hp2-inspector{padding:24px;}.hp2-footer>p{text-align:left;}}
         @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:1ms!important;animation-iteration-count:1!important;transition-duration:1ms!important;}}
       `}</style>
 
@@ -514,8 +473,7 @@ export default function HomePage() {
 
         </main>
 
-        {/* ── toast ── */}
-        <div className={`hp2-toast${toastVisible ? ' vis' : ''}`} role="status" aria-live="polite">{toast}</div>
+
       </div>
     </>
   );
