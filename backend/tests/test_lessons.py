@@ -64,8 +64,8 @@ def test_generate_summary_provider_failure(monkeypatch):
     def mock_generate_summary(transcript):
         raise Exception("Provider failed")
     
-    # We patch the generate_summary directly where it is imported in lessons.py
-    monkeypatch.setattr("app.routes.lessons.generate_summary", lambda t: "")
+    # We patch the generate_summary directly where it is defined since it is imported locally
+    monkeypatch.setattr("app.services.llm_service.generate_summary", lambda t: "")
 
     resp = client.post(f"/api/lessons/{lesson_id}/generate-summary")
     
