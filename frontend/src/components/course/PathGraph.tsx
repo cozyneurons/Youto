@@ -28,7 +28,7 @@ interface Props {
  */
 export default function PathGraph({ lessons, courseId, completedLessons, friends = [], currentUser }: Props) {
   /* ── Layout constants ────────────────────────────────────────────────────
-     NODE_HEIGHT  → vertical gap between consecutive lesson nodes
+     NODE_HEIGHT  → base vertical spacing between consecutive node centres
      SECTION_GAP  → extra vertical space inserted between phase groups
      SVG_WIDTH    → fixed canvas width; nodes are centred within it
      amp          → how far left/right nodes swing from the centre line     */
@@ -45,7 +45,7 @@ export default function PathGraph({ lessons, courseId, completedLessons, friends
      which pushes subsequent nodes further down via SECTION_GAP. */
   let currentSectionIndex = 0;
   let currentPhase = "Phase 1";
-  
+
   if (lessons.length > 0) {
     const firstValid = lessons.find(l => l.phase && l.phase.trim() !== "");
     if (firstValid) {
@@ -59,13 +59,13 @@ export default function PathGraph({ lessons, courseId, completedLessons, friends
   const pts = lessons.map((lesson, i) => {
     const rawPhase = lesson.phase?.trim();
     const phaseName = (rawPhase && rawPhase !== "") ? rawPhase : currentPhase;
-    
+
     // If phase changes, we increment section index
     if (i > 0 && phaseName !== currentPhase) {
       currentSectionIndex++;
       currentPhase = phaseName;
     }
-    
+
     return {
       x: i % 2 === 0 ? cx - amp : cx + amp, // alternate left / right
       y: 100 + i * NODE_HEIGHT + currentSectionIndex * SECTION_GAP,
@@ -85,7 +85,7 @@ export default function PathGraph({ lessons, courseId, completedLessons, friends
   if (pts.length > 0) {
     // First divider is always at the top
     dividers.push({ id: 0, y: 0, label: pts[0].phaseName });
-    
+
     // Find where section index changes
     let lastSection = 0;
     for (let i = 1; i < pts.length; i++) {
@@ -119,7 +119,7 @@ export default function PathGraph({ lessons, courseId, completedLessons, friends
      activePoints covers all nodes up to (but not including) the first
      incomplete lesson, so the blue overlay only covers completed segments. */
   const activePoints = activeIndex === -1 ? pts : pts.slice(0, activeIndex);
-  
+
   // Aggregate all users (current + friends) to place on the graph
   const allUsers = [...friends];
   if (currentUser) allUsers.push(currentUser);
@@ -176,7 +176,7 @@ export default function PathGraph({ lessons, courseId, completedLessons, friends
         {lessons.map((lesson, i) => {
           // Users who are at this exact lesson index
           const activeUsersAtNode = allUsers.filter(u => u.active_index === i);
-          
+
           return (
             <div key={lesson.id} style={{ position: 'absolute', left: pts[i].x, top: pts[i].y, transform: 'translate(-50%, -50%)', zIndex: 10 }}>
               <VideoNode
@@ -186,7 +186,7 @@ export default function PathGraph({ lessons, courseId, completedLessons, friends
                 isActive={i === activeIndex}
                 side={i % 2 === 0 ? 'left' : 'right'}
               />
-              
+
               {/* Render avatars of users who are at this node */}
               {activeUsersAtNode.length > 0 && (
                 <div style={{
