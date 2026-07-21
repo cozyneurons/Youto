@@ -27,25 +27,17 @@ def get_course_progress(
         for row in db.query(Lesson.id).filter(Lesson.course_id == course_id).all()
     ]
     total = len(lesson_ids)
-    completed_records = (
-        db.query(Progress.lesson_id)
+    completed = (
+        db.query(Progress)
         .filter(
             Progress.user_id == current_user.id,
             Progress.lesson_id.in_(lesson_ids),
             Progress.completed == True,  # noqa: E712
         )
-        .all()
+        .count()
     )
-    completed_lesson_ids = [r[0] for r in completed_records]
-    completed = len(completed_lesson_ids)
     percentage = round(completed / total * 100, 1) if total > 0 else 0.0
-    
-    return CourseProgressResponse(
-        completed=completed, 
-        total=total, 
-        percentage=percentage,
-        completed_lesson_ids=completed_lesson_ids
-    )
+    return CourseProgressResponse(completed=completed, total=total, percentage=percentage)
 
 
 import asyncio

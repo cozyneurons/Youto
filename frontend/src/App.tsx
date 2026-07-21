@@ -34,7 +34,7 @@ export default function App() {
       <ErrorBoundary>
         <Router>
           <Routes>
-            <Route path="/" element={<HomePage />} />
+              <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
 

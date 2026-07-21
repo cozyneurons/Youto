@@ -58,16 +58,8 @@ export default function CoursePage() {
     let isSubscribed = true;
     let retryTimeout: number | null = null;
     let retryCount = 0;
-    let stabilityTimeout: number | null = null;
 
     const connectWs = async () => {
-      const scheduleRetry = () => {
-        if (!isSubscribed || retryCount >= 10) return;
-        const delay = Math.min(1000 * Math.pow(2, retryCount), 30000);
-        retryCount++;
-        retryTimeout = window.setTimeout(connectWs, delay);
-      };
-
       try {
         const ticketRes = await api.post('/api/ws/ticket');
         if (!isSubscribed) return;
@@ -77,11 +69,8 @@ export default function CoursePage() {
         ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
+          retryCount = 0;
           console.log('WebSocket connected');
-          stabilityTimeout = window.setTimeout(() => {
-            retryCount = 0;
-            stabilityTimeout = null;
-          }, 3000);
         };
 
         ws.onmessage = (event) => {
@@ -103,11 +92,14 @@ export default function CoursePage() {
           }
         };
 
+        const scheduleRetry = () => {
+          if (!isSubscribed || retryCount >= 10) return;
+          const delay = Math.min(1000 * Math.pow(2, retryCount), 30000);
+          retryCount++;
+          retryTimeout = window.setTimeout(connectWs, delay);
+        };
+
         ws.onclose = (event) => {
-          if (stabilityTimeout !== null) {
-            window.clearTimeout(stabilityTimeout);
-            stabilityTimeout = null;
-          }
           if (event.code === 1008 || event.code === 401 || event.code === 403) return;
           scheduleRetry();
         };
@@ -119,12 +111,15 @@ export default function CoursePage() {
       } catch (err: any) {
         console.error("Failed to connect to WebSocket", err);
         if (!isSubscribed) return;
-
+        
         if (err.response?.status === 401 || err.response?.status === 403) {
           return;
         }
 
-        scheduleRetry();
+        if (retryCount >= 10) return;
+        const delay = Math.min(1000 * Math.pow(2, retryCount), 30000);
+        retryCount++;
+        retryTimeout = window.setTimeout(connectWs, delay);
       }
     };
 
@@ -134,9 +129,6 @@ export default function CoursePage() {
       isSubscribed = false;
       if (retryTimeout !== null) {
         window.clearTimeout(retryTimeout);
-      }
-      if (stabilityTimeout !== null) {
-        window.clearTimeout(stabilityTimeout);
       }
       if (ws) {
         ws.onclose = null;
@@ -153,16 +145,13 @@ export default function CoursePage() {
     }
     setIsSharing(true);
     setShareMessage('');
-    
-    let isSuccess = false;
     try {
       const res = await api.post(`/api/courses/${courseId}/share`);
       const token = res.data.token;
       const joinUrl = `${window.location.origin}/join/${token}`;
       try {
         await navigator.clipboard.writeText(joinUrl);
-        setShareMessage('Copied!');
-        isSuccess = true;
+        setShareMessage('Invite link copied to clipboard!');
       } catch (clipErr) {
         setShareMessage(`Invite link generated: ${joinUrl} (copy manually)`);
       }
@@ -173,7 +162,7 @@ export default function CoursePage() {
       shareMessageTimeoutRef.current = window.setTimeout(() => {
         setShareMessage('');
         shareMessageTimeoutRef.current = null;
-      }, isSuccess ? 2000 : 10000);
+      }, 10000); // 10 seconds for manual copy just in case
     }
   };
 
@@ -192,22 +181,14 @@ export default function CoursePage() {
             <div style={{ position: 'relative' }}>
               <button
                 onClick={handleShare}
-                disabled={isSharing || shareMessage === 'Copied!'}
-                className={`btn ${shareMessage === 'Copied!' ? 'btn-primary' : 'btn-outline'}`}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}
+                disabled={isSharing}
+                className="btn btn-outline"
+                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
               >
-                {shareMessage === 'Copied!' ? (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                ) : (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                )}
-                {isSharing ? 'Generating...' : shareMessage === 'Copied!' ? 'Copied Link' : 'Share Path'}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                {isSharing ? 'Generating...' : 'Share Path'}
               </button>
-              {shareMessage && shareMessage !== 'Copied!' && (
+              {shareMessage && (
                 <div style={{
                   position: 'absolute', top: '100%', right: '0', marginTop: '8px',
                   padding: '8px 12px', background: 'var(--bg-elevated)', border: '1px solid var(--color-border)',

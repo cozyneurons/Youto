@@ -118,8 +118,8 @@ export default function PathGraph({ lessons, courseId, completedLessons, friends
         {activePoints.length > 0 && (
           <path
             d={buildPath(activePoints)}
-            stroke="var(--success)"
-            strokeWidth="3"
+            stroke="var(--accent)"
+            strokeWidth="4"
             fill="none"
             strokeDasharray="8 6"
             strokeLinecap="round"

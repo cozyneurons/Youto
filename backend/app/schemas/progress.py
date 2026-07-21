@@ -30,4 +30,3 @@ class CourseProgressResponse(BaseModel):
     completed: int
     total: int
     percentage: float
-    completed_lesson_ids: list[int]
