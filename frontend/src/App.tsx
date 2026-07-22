@@ -18,7 +18,7 @@ import JoinCoursePage from './pages/JoinCoursePage';
 import PlaylistImportPage from './pages/PlaylistImportPage';
 
 import { useLocation } from 'react-router-dom';
-
+import { Analytics } from "@vercel/analytics/react";
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
   const location = useLocation();
@@ -42,7 +42,7 @@ export default function App() {
       <ErrorBoundary>
         <Router>
           <Routes>
-              <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
 
@@ -58,6 +58,7 @@ export default function App() {
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Router>
+        <Analytics />
       </ErrorBoundary>
     </GoogleOAuthProvider>
   );
