@@ -90,24 +90,4 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:latest
 
-  # ── Deploy ────────────────────────────────────────────────────────────────
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Deploy to Oracle Cloud VM via SSH
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.ORACLE_HOST }}
-          username: ${{ secrets.ORACLE_USER }}
-          key: ${{ secrets.ORACLE_SSH_KEY }}
-          script: |
-            cd ~/youto
-            git pull origin main
-            docker compose pull
-            docker compose up -d --remove-orphans
-            docker compose exec -T backend alembic upgrade head
-            echo "✅ Deployment complete"
