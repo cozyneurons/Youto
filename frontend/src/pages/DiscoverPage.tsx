@@ -66,7 +66,17 @@ export default function DiscoverPage() {
       if (!validHostnames.includes(hostname)) {
         throw new Error('Invalid host');
       }
-      if (hostname === 'youtube.com' && !['/playlist', '/watch'].includes(parsedUrl.pathname)) {
+      const pathParts = parsedUrl.pathname.split('/').filter(Boolean);
+      const isShortVideo = hostname === 'youtu.be' && pathParts.length === 1;
+      const isWatchVideo =
+        hostname === 'youtube.com' &&
+        parsedUrl.pathname === '/watch' &&
+        Boolean(parsedUrl.searchParams.get('v'));
+      const isPlaylist =
+        hostname === 'youtube.com' &&
+        parsedUrl.pathname === '/playlist' &&
+        Boolean(parsedUrl.searchParams.get('list'));
+      if (!isShortVideo && !isWatchVideo && !isPlaylist) {
         throw new Error('Invalid path');
       }
     } catch {
