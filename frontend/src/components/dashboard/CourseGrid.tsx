@@ -92,13 +92,19 @@ function CourseCard({ course }: { course: Course }) {
         </div>
       </Link>
 
-      <div style={{ padding: '12px', borderTop: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap', background: 'var(--bg-surface)' }}>
+      <div
+        style={{ padding: '12px', borderTop: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap', background: 'var(--bg-surface)' }}
+        onClick={(e) => e.stopPropagation()}
+      >
         <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 500, whiteSpace: 'nowrap' }}>
           {course.deadline ? 'Deadline:' : 'Add Deadline:'}
         </span>
-        <DatePicker 
+        <DatePicker
           aria-label="Set Deadline"
-          value={course.deadline ? parseDate(course.deadline.split('T')[0]) : null}
+          value={(() => {
+            try { return course.deadline ? parseDate(course.deadline.split('T')[0]) : null; }
+            catch { return null; }
+          })()}
           onChange={handleDateChange}
         />
       </div>

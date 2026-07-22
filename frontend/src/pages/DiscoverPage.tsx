@@ -18,6 +18,8 @@ export default function DiscoverPage() {
   const [isImporting, setIsImporting] = useState(false);
   const [recommendation, setRecommendation] = useState<Recommendation | null>(null);
   const [error, setError] = useState('');
+  const [url, setUrl] = useState('');
+  const [isImportingUrl, setIsImportingUrl] = useState(false);
   const navigate = useNavigate();
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -48,18 +50,36 @@ export default function DiscoverPage() {
     }
   };
 
+  const handleImportUrl = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!url.trim()) return;
+    setError('');
+
+    if (!url.includes('youtube.com/playlist') && !url.includes('youtube.com/watch') && !url.includes('youtu.be/')) {
+      setError('Please enter a valid YouTube playlist or video URL');
+      return;
+    }
+
+    setIsImportingUrl(true);
+    try {
+      const course = await uploadService.extractPlaylist(url.trim());
+      navigate(`/course/${course.id}`);
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Failed to extract playlist. Try a different URL.');
+    } finally {
+      setIsImportingUrl(false);
+    }
+  };
+
   return (
     <div className="page">
       <Navbar />
       <main className="container discover-main">
-        {/* Hero */}
-        <header className="discover-hero">
-          <div className="discover-hero-icon"></div>
-          <h1 className="page-title">Discover the Best Course</h1>
-          <p className="page-subtitle">
-            Enter a topic and skill level to find the best course.
-          </p>
-        </header>
+
+
+        <h1 style={{ textAlign: 'center', fontSize: '2.5rem', fontWeight: 800, marginBottom: '32px', color: 'var(--ink)' }}>
+          Discover the best course
+        </h1>
 
         {/* Search Form */}
         <form id="discover-form" onSubmit={handleSearch} className="discover-form">
@@ -72,7 +92,7 @@ export default function DiscoverPage() {
                 className="field-input"
                 value={topic}
                 onChange={e => setTopic(e.target.value)}
-                placeholder="e.g. Python, React, Machine Learning…"
+                placeholder="e.g. DSA Graph, Operating System"
                 required
                 disabled={isLoading}
               />
@@ -119,6 +139,41 @@ export default function DiscoverPage() {
             )}
           </button>
         </form>
+
+        {(!recommendation && !isLoading) && (
+          <>
+            <div style={{ textAlign: 'center', margin: '32px 0', color: 'var(--text-muted)', fontWeight: 500, fontSize: '0.9rem', letterSpacing: '0.05em' }}>
+              — OR —
+            </div>
+
+            {/* Direct URL Import Form */}
+            <form onSubmit={handleImportUrl} className="discover-form" style={{ marginTop: 0 }}>
+              <div className="field-group">
+                <label className="field-label" htmlFor="playlist-url">Have a YouTube Playlist URL?</label>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <input
+                    id="playlist-url"
+                    type="url"
+                    className="field-input"
+                    value={url}
+                    onChange={e => setUrl(e.target.value)}
+                    placeholder="https://www.youtube.com/playlist?list=..."
+                    disabled={isImportingUrl}
+                    style={{ flex: 1 }}
+                  />
+                  <button
+                    type="submit"
+                    className="btn btn-secondary"
+                    disabled={isImportingUrl || !url}
+                    style={{ whiteSpace: 'nowrap' }}
+                  >
+                    {isImportingUrl ? 'Importing…' : 'Import →'}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </>
+        )}
 
         {/* Error */}
         {error && <div className="error-banner">{error}</div>}

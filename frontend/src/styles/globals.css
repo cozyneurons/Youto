@@ -557,7 +557,6 @@ input {
   background: var(--bg-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  overflow: hidden;
   transition: transform var(--transition-fast), border-color var(--transition-fast);
 }
 
@@ -570,6 +569,7 @@ input {
   aspect-ratio: 16/9;
   overflow: hidden;
   background: var(--bg-muted);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
 .course-card-thumb img {
@@ -1394,28 +1394,63 @@ input {
 .discover-main {
   max-width: 860px;
   margin: 0 auto;
-  padding: 48px 24px;
+  padding: 64px 24px;
+}
+
+body:has(.discover-main) {
+  background: radial-gradient(circle at 10% 20%, rgba(140, 188, 255, 0.15), transparent 30%),
+              radial-gradient(circle at 90% 80%, rgba(255, 159, 202, 0.15), transparent 30%),
+              var(--bg-base);
+  min-height: 100vh;
 }
 
 .discover-hero {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 56px;
 }
 
-.discover-hero-icon {
-  font-size: 3rem;
-  margin-bottom: 12px;
+.discover-hero .page-title {
+  font-size: clamp(2.8rem, 6vw, 4rem);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  color: var(--bg-surface);
+  -webkit-text-stroke: 2px var(--ink);
+  text-shadow: 5px 5px 0 var(--accent-hover);
+  line-height: 1.1;
+}
+
+.discover-hero .page-subtitle {
+  font-size: 1.25rem;
+  font-weight: 500;
+  max-width: 600px;
+  margin: 0 auto;
+  color: var(--text-secondary);
 }
 
 .discover-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   background: var(--bg-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 28px;
-  margin-bottom: 32px;
+  border: var(--border-neo);
+  border-radius: var(--radius-xl);
+  padding: 36px;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.discover-form:focus-within {
+  transform: translate(-3px, -3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.discover-form h2 {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .discover-form-row {
@@ -1437,21 +1472,24 @@ input {
 }
 
 .chip {
-  padding: 5px 14px;
+  padding: 6px 16px;
   border-radius: var(--radius-full);
-  font-size: 0.8rem;
-  border: 1px solid var(--color-border);
-  background: var(--bg-elevated);
-  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  border: 2px solid var(--ink);
+  background: var(--bg-surface);
+  color: var(--ink);
   cursor: pointer;
+  box-shadow: 2px 2px 0 var(--ink);
   transition: all var(--transition-fast);
 }
 
 .chip:hover,
 .chip-active {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: rgba(115, 194, 251, 0.1);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--ink);
+  background: var(--accent);
 }
 
 .discover-loading {
@@ -1475,10 +1513,12 @@ input {
 /* Recommendation card */
 .recommendation-card {
   background: var(--bg-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 28px;
+  border: var(--border-neo);
+  border-radius: var(--radius-xl);
+  padding: 36px;
   position: relative;
+  box-shadow: var(--shadow-lg);
+  margin-top: 40px;
 }
 
 .recommendation-badge {

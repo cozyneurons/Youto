@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import Navbar from '../components/common/Navbar';
+import { Link } from 'react-router-dom';
 
 /* ── data ──────────────────────────────────────────────────────────────────── */
 interface Incident {
@@ -18,13 +19,90 @@ interface Incident {
 }
 
 const incidents: Incident[] = [
-  { id: 1, title: 'The Recommendation Feed', category: 'distraction', categoryLabel: 'Distraction', duration: 'Several avoidable hours', severity: 'High severity', summary: 'The user forgot the primary objective after encountering recommended videos.', issue: 'The user entered an environment designed to eliminate focus and temporarily abandoned the tutorial.', action: 'Convert to a structured course, maintain progress accountability, and enforce a strict learning path.', system: 'Automated deadline alerts', icon: '⏱', color: '#ffd84d' },
-  { id: 2, title: 'The Clickbait Thumbnail', category: 'blocker', categoryLabel: 'Risk-management failure', duration: 'One wasted session', severity: 'Critical severity', summary: 'An unvetted video became a 20-minute time sink.', issue: 'The user clicked an unknown video without conducting reconnaissance or respecting obvious clickbait signals.', action: 'Use Gemini AI summaries first to document the content and avoid wasting time.', system: 'Pre-entry risk checklist', icon: '⚠', color: '#ff9d57' },
-  { id: 3, title: 'The Shorts Feed', category: 'failure', categoryLabel: 'Attention failure', duration: 'Focus nearly reached', severity: 'Critical severity', summary: 'The user opened a critical distraction because the UI made it too easy.', issue: 'An endless scrolling resource was left beside a bored and susceptible learner.', action: 'Identify the asset, explain its purpose, and implement focus controls before going to sleep.', system: 'Role-based access control', icon: '🔐', color: '#8cbcff' },
-  { id: 4, title: "The Comment Section", category: 'distraction', categoryLabel: 'Scope creep', duration: 'Approximately one hour', severity: 'High severity', summary: 'A quick scroll turned into a year-long argument.', issue: 'After watching the tutorial, the learner remained at a comfortable detour reading internet drama.', action: 'Close the tab, restore focus, record notes, and immediately return to the original learning roadmap.', system: 'Calendar-based escalation', icon: '📆', color: '#ff9fca' },
-
-  { id: 6, title: 'Tutorial Hell', category: 'blocker', categoryLabel: 'Forced trade-off', duration: 'One catastrophic binge', severity: 'Unavoidable severity', summary: 'The route offered two bad options: out-of-date tutorials or 10-hour bootcamps.', issue: 'This was a genuine strategic constraint. Every choice involved measurable time loss.', action: 'Evaluate both risks, extract the transcript, and let AI summarize the key points.', system: 'Decision-impact matrix', icon: '⚖', color: '#a9e76c' },
-  { id: 7, title: 'The Auto-Play Feature', category: 'blocker', categoryLabel: 'Platform-level blocker', duration: 'Seven hours', severity: 'Maximum severity', summary: 'The learning remained blocked for seven hours before intervention.', issue: 'The user was unable to leave, yet the issue remained unresolved until sleep deprivation finally intervened.', action: 'Turn off auto-play immediately, convert to a Youto course, and do not allow a single video to age into a binge session.', system: 'Automatic blocker escalation', icon: '📣', color: '#ff9fca' },
+  {
+    id: 1,
+    title: 'The Recommendation Rabbit Hole',
+    category: 'distraction',
+    categoryLabel: 'Distraction',
+    duration: 'Several avoidable hours',
+    severity: 'High severity',
+    summary: 'User opened one tutorial and ended up watching unrelated videos for hours.',
+    issue: 'YouTube\'s recommendation algorithm actively fights your focus — every video ends with bait for the next click.',
+    action: 'Convert the playlist into a structured Youto course. A locked learning path removes the sidebar and keeps you on track.',
+    system: 'Structured Course Paths',
+    icon: '🎯',
+    color: '#ffd84d',
+  },
+  {
+    id: 2,
+    title: 'The 10-Hour Tutorial Trap',
+    category: 'blocker',
+    categoryLabel: 'Time management failure',
+    duration: 'One wasted weekend',
+    severity: 'Critical severity',
+    summary: 'User started a 10-hour video without knowing if it covered what they needed.',
+    issue: 'Long-form YouTube content offers no upfront summary — you only find out it\'s irrelevant 40 minutes in.',
+    action: 'Use Youto\'s Gemini AI Summary to get a full breakdown of the video\'s content before committing to watch it.',
+    system: 'Gemini AI Video Summaries',
+    icon: '✨',
+    color: '#ff9d57',
+  },
+  {
+    id: 3,
+    title: 'The Abandoned Course',
+    category: 'failure',
+    categoryLabel: 'Accountability failure',
+    duration: 'Weeks of inaction',
+    severity: 'Critical severity',
+    summary: 'User bookmarked a playlist with good intentions, never returned to it.',
+    issue: 'YouTube has no reminders, no progress tracking, and no consequences for quitting.',
+    action: 'Set a deadline on your Youto course. You\'ll receive an email reminder at midnight if you miss it.',
+    system: 'Deadline & Email Reminders',
+    icon: '⏰',
+    color: '#8cbcff',
+  },
+  {
+    id: 4,
+    title: 'Lost in the Middle',
+    category: 'distraction',
+    categoryLabel: 'Progress blindspot',
+    duration: 'Recurring every session',
+    severity: 'High severity',
+    summary: 'User could never remember which video they were on or what they had already covered.',
+    issue: 'YouTube watch history is a flat list — it gives no sense of how far you\'ve come or how far is left to go.',
+    action: 'Youto\'s animated progress path turns your course into a visual journey, showing exactly where you are and how much is left.',
+    system: 'Curvy Progress Path UI',
+    icon: '🛤️',
+    color: '#ff9fca',
+  },
+  {
+    id: 6,
+    title: 'Learning Alone, Getting Nowhere',
+    category: 'blocker',
+    categoryLabel: 'Motivation failure',
+    duration: 'Ongoing',
+    severity: 'High severity',
+    summary: 'User lost motivation studying solo with no one to be accountable to.',
+    issue: 'Studying in isolation makes it easy to quit — there\'s no social pressure or shared progress to keep you going.',
+    action: 'Share your Youto course path with up to 5 friends. Watch each other\'s avatars progress in real time on the same path.',
+    system: 'Shared Course Paths',
+    icon: '👥',
+    color: '#a9e76c',
+  },
+  {
+    id: 7,
+    title: 'Notes Disconnected from Video',
+    category: 'blocker',
+    categoryLabel: 'Learning workflow failure',
+    duration: 'Every single session',
+    severity: 'Medium severity',
+    summary: 'User took notes in a separate app and lost context of which moment in the video they referred to.',
+    issue: 'Switching between a video and a notes app breaks focus and disconnects your insights from the exact moment that inspired them.',
+    action: 'Take notes directly inside Youto. Type a timestamp like 12:34 and it becomes a clickable button that jumps the video to that exact moment.',
+    system: 'In-video Notes with Timestamps',
+    icon: '📝',
+    color: '#c4b5fd',
+  },
 ];
 
 type Filter = 'all' | 'distraction' | 'blocker' | 'failure';
@@ -56,12 +134,12 @@ export default function HomePage() {
     };
   }, []);
 
-  const heroTitle = dreamMode ? <>Was Learning <span>Ever Real?</span></> : <>YouTube to <span>Structured Course</span></>;
+  const heroTitle = dreamMode ? <>Down the <span>Rabbit Hole</span></> : <>YouTube to <span>Structured Course</span></>;
   const heroDesc = dreamMode
-    ? 'Perhaps the endless recommended videos and shorts weren\'t distractions at all—but symbols inside one extremely persuasive algorithm.'
+    ? 'Hours lost to the algorithm. Countless recommended videos watched. Zero original goals accomplished. Welcome to the doomscrolling state.'
     : 'A routine tutorial search became a three-hour rabbit hole involving cat videos, clickbait, and one extremely persuasive algorithm.';
-  const eyebrow = dreamMode ? 'Procrastination Mode · Doomscrolling Hypothesis' : 'Youto Operations · Conversion Postmortem';
-  const symbolLabel = dreamMode ? 'Focus status unknown' : 'Learning overdue';
+  const eyebrow = dreamMode ? 'Algorithm Hypothesis · The Doomscrolling State' : 'Youto Operations · Conversion Postmortem';
+  const symbolLabel = dreamMode ? 'Focus status: LOST' : 'Learning overdue';
 
   return (
     <>
@@ -185,9 +263,11 @@ export default function HomePage() {
               <h1>{heroTitle}</h1>
               <p className="hp2-hero-desc">{heroDesc}</p>
               <div className="hp2-hero-actions">
-
+                <Link to="/discover" className="hp2-btn-primary">
+                  Discover Courses
+                </Link>
                 <button className="hp2-btn-secondary" onClick={handleDream} aria-pressed={dreamMode} type="button">
-                  Dream theory: {dreamMode ? 'ON' : 'OFF'}
+                  Doomscroll Mode: {dreamMode ? 'ON' : 'OFF'}
                 </button>
               </div>
             </div>
@@ -401,7 +481,7 @@ export default function HomePage() {
             <div className="hp2-section-head">
               <div>
                 <p className="hp2-eyebrow">Incident registry</p>
-                <h2>Where the journey went wrong</h2>
+                <h2 style={{ color: dreamMode ? 'var(--accent-hover)' : 'inherit', transition: 'color 0.3s' }}>Where the journey went wrong</h2>
               </div>
               <div className="hp2-filters" aria-label="Incident filters">
                 {(['all', 'distraction', 'blocker', 'failure'] as Filter[]).map(f => (
@@ -411,7 +491,7 @@ export default function HomePage() {
                     type="button"
                     onClick={() => handleFilter(f)}
                   >
-                    {f === 'all' ? 'All' : f === 'distraction' ? 'Distractions' : f === 'blocker' ? 'Blockers' : 'Team failures'}
+                    {f === 'all' ? 'All' : f === 'distraction' ? 'Distractions' : f === 'blocker' ? 'Blockers' : 'Drop-offs'}
                   </button>
                 ))}
               </div>
@@ -452,7 +532,7 @@ export default function HomePage() {
                 <h3>{selected.title}</h3>
                 <div className="hp2-detail-block">
                   <span>What happened</span>
-                  <p>{dreamMode ? `Possible dream symbol: ${selected.issue}` : selected.issue}</p>
+                  <p>{dreamMode ? `Algorithm Trap: ${selected.issue}` : selected.issue}</p>
                 </div>
                 <div className="hp2-detail-block">
                   <span>What should have been done</span>
