@@ -15,10 +15,18 @@ import ProfilePage from './pages/ProfilePage';
 import NotFoundPage from './pages/NotFoundPage';
 import DiscoverPage from './pages/DiscoverPage';
 import JoinCoursePage from './pages/JoinCoursePage';
+import PlaylistImportPage from './pages/PlaylistImportPage';
+
+import { useLocation } from 'react-router-dom';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
+  const location = useLocation();
+  return isAuthenticated ? (
+    <>{children}</>
+  ) : (
+    <Navigate to="/login" state={{ from: location.pathname + location.search }} replace />
+  );
 }
 
 export default function App() {
@@ -45,6 +53,7 @@ export default function App() {
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="/discover" element={<ProtectedRoute><DiscoverPage /></ProtectedRoute>} />
             <Route path="/join/:token" element={<ProtectedRoute><JoinCoursePage /></ProtectedRoute>} />
+            <Route path="/playlist" element={<ProtectedRoute><PlaylistImportPage /></ProtectedRoute>} />
 
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

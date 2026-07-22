@@ -1,16 +1,19 @@
 import { useGoogleLogin } from '@react-oauth/google';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 
 export default function GoogleAuth() {
   const navigate = useNavigate();
   const { loginWithGoogle, isLoading } = useAuthStore();
 
+  const location = useLocation();
+  const from = location.state?.from || '/dashboard';
+
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
         await loginWithGoogle(tokenResponse.access_token);
-        navigate('/dashboard');
+        navigate(from, { replace: true });
       } catch (e) {
         // Error is handled in the store
       }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 
 export default function SignupForm() {
@@ -8,7 +8,8 @@ export default function SignupForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { signup, isLoading } = useAuthStore();
-  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from || '/dashboard';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,7 +20,7 @@ export default function SignupForm() {
     }
     try {
       await signup(email, password, name);
-      navigate('/dashboard');
+      navigate(from, { replace: true });
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Sign up failed. Try again.');
     }
