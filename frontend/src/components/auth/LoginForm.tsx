@@ -8,6 +8,7 @@ export default function LoginForm() {
   const [error, setError] = useState('');
   const { login, isLoading } = useAuthStore();
   const location = useLocation();
+  const navigate = useNavigate();
   const from = location.state?.from || '/dashboard';
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,7 +58,7 @@ export default function LoginForm() {
       </button>
 
       <p className="auth-footer">
-        Don't have an account? <Link to="/signup">Sign up</Link>
+        Don't have an account? <Link to="/signup" state={location.state}>Sign up</Link>
       </p>
     </form>
   );
