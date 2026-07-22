@@ -56,7 +56,7 @@ const incidents: Incident[] = [
     severity: 'Critical severity',
     summary: 'User bookmarked a playlist with good intentions, never returned to it.',
     issue: 'YouTube has no reminders, no progress tracking, and no consequences for quitting.',
-    action: 'Set a deadline on your Youto course. You\'ll receive an email reminder at midnight if you miss it.',
+    action: 'Set a deadline on your Youto course. You\'ll receive an email reminder if you miss it.',
     system: 'Deadline & Email Reminders',
     icon: '⏰',
     color: '#8cbcff',
@@ -164,7 +164,7 @@ export default function HomePage() {
         .hp2-hero-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:34px;}
         .hp2-btn-primary,.hp2-btn-secondary,.hp2-filter,.hp2-text-btn{cursor:pointer;border:var(--border);font-weight:700;transition:transform 150ms ease,box-shadow 150ms ease,background 150ms ease;}
         .hp2-btn-primary,.hp2-btn-secondary{min-height:52px;padding:0 20px;border-radius:14px;}
-        .hp2-btn-primary{display:inline-flex;gap:22px;align-items:center;justify-content:space-between;background:var(--yellow);box-shadow:var(--small-shadow);}
+        .hp2-btn-primary{display:inline-flex;gap:22px;align-items:center;justify-content:space-between;background:var(--yellow);box-shadow:var(--small-shadow);text-decoration:none;color:inherit;}
         .hp2-btn-secondary{background:var(--white);}
         .hp2-btn-primary:hover,.hp2-btn-secondary:hover,.hp2-filter:hover,.hp2-text-btn:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink);}
         .hp2-btn-primary:active,.hp2-btn-secondary:active,.hp2-filter:active,.hp2-text-btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink);}

@@ -14,18 +14,21 @@ const TOPIC_SUGGESTIONS = [
 export default function DiscoverPage() {
   const [topic, setTopic] = useState('');
   const [level, setLevel] = useState('Beginner');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isImporting, setIsImporting] = useState(false);
+  const [busyAction, setBusyAction] = useState<string | null>(null);
   const [recommendation, setRecommendation] = useState<Recommendation | null>(null);
   const [error, setError] = useState('');
   const [url, setUrl] = useState('');
-  const [isImportingUrl, setIsImportingUrl] = useState(false);
   const navigate = useNavigate();
+
+  const isBusy = busyAction !== null;
+  const isLoading = busyAction === 'search';
+  const isImporting = busyAction === 'import_rec';
+  const isImportingUrl = busyAction === 'import_url';
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!topic.trim()) return;
-    setIsLoading(true);
+    if (isBusy || !topic.trim()) return;
+    setBusyAction('search');
     setError('');
     setRecommendation(null);
     try {
@@ -34,40 +37,51 @@ export default function DiscoverPage() {
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Could not fetch a recommendation. Please try again.');
     } finally {
-      setIsLoading(false);
+      setBusyAction(null);
     }
   };
 
   const handleImport = async () => {
-    if (!recommendation?.playlist_url) return;
-    setIsImporting(true);
+    if (isBusy || !recommendation?.playlist_url) return;
+    setBusyAction('import_rec');
     try {
       const course = await uploadService.extractPlaylist(recommendation.playlist_url);
       navigate(`/course/${course.id}`);
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to import this playlist. Try pasting the URL directly.');
-      setIsImporting(false);
+    } finally {
+      setBusyAction(null);
     }
   };
 
   const handleImportUrl = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!url.trim()) return;
+    if (isBusy || !url.trim()) return;
     setError('');
 
-    if (!url.includes('youtube.com/playlist') && !url.includes('youtube.com/watch') && !url.includes('youtu.be/')) {
+    try {
+      const parsedUrl = new URL(url.trim());
+      const hostname = parsedUrl.hostname.replace(/^www\./, '');
+      const validHostnames = ['youtube.com', 'youtu.be'];
+      if (!validHostnames.includes(hostname)) {
+        throw new Error('Invalid host');
+      }
+      if (hostname === 'youtube.com' && !['/playlist', '/watch'].includes(parsedUrl.pathname)) {
+        throw new Error('Invalid path');
+      }
+    } catch {
       setError('Please enter a valid YouTube playlist or video URL');
       return;
     }
 
-    setIsImportingUrl(true);
+    setBusyAction('import_url');
     try {
       const course = await uploadService.extractPlaylist(url.trim());
       navigate(`/course/${course.id}`);
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to extract playlist. Try a different URL.');
     } finally {
-      setIsImportingUrl(false);
+      setBusyAction(null);
     }
   };
 
@@ -94,7 +108,7 @@ export default function DiscoverPage() {
                 onChange={e => setTopic(e.target.value)}
                 placeholder="e.g. DSA Graph, Operating System"
                 required
-                disabled={isLoading}
+                disabled={isBusy}
               />
             </div>
             <div className="field-group">
@@ -104,7 +118,7 @@ export default function DiscoverPage() {
                 className="field-input"
                 value={level}
                 onChange={e => setLevel(e.target.value)}
-                disabled={isLoading}
+                disabled={isBusy}
               >
                 {LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
               </select>
@@ -119,7 +133,7 @@ export default function DiscoverPage() {
                 type="button"
                 className={`chip ${topic === t ? 'chip-active' : ''}`}
                 onClick={() => setTopic(t)}
-                disabled={isLoading}
+                disabled={isBusy}
               >
                 {t}
               </button>
@@ -130,7 +144,7 @@ export default function DiscoverPage() {
             id="discover-search-btn"
             type="submit"
             className="btn btn-primary btn-lg w-full"
-            disabled={isLoading || !topic.trim()}
+            disabled={isBusy || !topic.trim()}
           >
             {isLoading ? (
               <><span className="spinner-sm" /> Searching for the best courses…</>
@@ -140,7 +154,7 @@ export default function DiscoverPage() {
           </button>
         </form>
 
-        {(!recommendation && !isLoading) && (
+        {(!recommendation && !isBusy) && (
           <>
             <div style={{ textAlign: 'center', margin: '32px 0', color: 'var(--text-muted)', fontWeight: 500, fontSize: '0.9rem', letterSpacing: '0.05em' }}>
               — OR —
@@ -158,13 +172,13 @@ export default function DiscoverPage() {
                     value={url}
                     onChange={e => setUrl(e.target.value)}
                     placeholder="https://www.youtube.com/playlist?list=..."
-                    disabled={isImportingUrl}
+                    disabled={isBusy}
                     style={{ flex: 1 }}
                   />
                   <button
                     type="submit"
                     className="btn btn-secondary"
-                    disabled={isImportingUrl || !url}
+                    disabled={isBusy || !url}
                     style={{ whiteSpace: 'nowrap' }}
                   >
                     {isImportingUrl ? 'Importing…' : 'Import →'}
@@ -236,7 +250,7 @@ export default function DiscoverPage() {
                     id="import-recommendation-btn"
                     className="btn btn-primary"
                     onClick={handleImport}
-                    disabled={isImporting}
+                    disabled={isBusy}
                   >
                     {isImporting ? <><span className="spinner-sm" /> Importing…</> : 'Import as Course'}
                   </button>
