@@ -19,6 +19,7 @@ import PlaylistImportPage from './pages/PlaylistImportPage';
 
 import { useLocation } from 'react-router-dom';
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
   const location = useLocation();
@@ -59,6 +60,7 @@ export default function App() {
           </Routes>
         </Router>
         <Analytics />
+        <SpeedInsights />
       </ErrorBoundary>
     </GoogleOAuthProvider>
   );
