@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/common/Navbar';
 import { uploadService } from '../services/uploadService';
+import { useCourseStore } from '../store/courseStore';
 
 export default function PlaylistImportPage() {
   const [searchParams] = useSearchParams();
@@ -34,6 +35,7 @@ export default function PlaylistImportPage() {
         youtubeUrl.searchParams.set('list', listId);
         const course = await uploadService.extractPlaylist(youtubeUrl.toString(), { signal: abortController.signal });
         if (isActive) {
+          useCourseStore.getState().setCurrentCourse(course);
           navigate(`/course/${course.id}`, { replace: true });
         }
       } catch (err: any) {

@@ -12,13 +12,14 @@ interface CourseState {
   fetchCourses: () => Promise<void>;
   fetchCourse: (id: number) => Promise<void>;
   fetchLessons: (courseId: number) => Promise<void>;
+  setCurrentCourse: (course: Course) => void;
   clearCurrent: () => void;
   renameCourse: (id: number, newTitle: string) => Promise<void>;
   deleteCourse: (id: number) => Promise<void>;
   updateCourseDeadline: (id: number, deadline: string | null) => Promise<void>;
 }
 
-export const useCourseStore = create<CourseState>((set) => ({
+export const useCourseStore = create<CourseState>((set, get) => ({
   courses: [],
   currentCourse: null,
   lessons: [],
@@ -38,7 +39,8 @@ export const useCourseStore = create<CourseState>((set) => ({
   },
 
   fetchCourse: async (id) => {
-    set({ isLoading: true, error: null });
+    const isAlreadyLoaded = get().currentCourse?.id === id;
+    set({ isLoading: !isAlreadyLoaded, error: null });
     try {
       const course = await courseService.getCourse(id);
       set({ currentCourse: course, lessons: course.lessons ?? [] });
@@ -48,6 +50,8 @@ export const useCourseStore = create<CourseState>((set) => ({
       set({ isLoading: false });
     }
   },
+
+  setCurrentCourse: (course) => set({ currentCourse: course, lessons: course.lessons ?? [], isLoading: false, error: null }),
 
   fetchLessons: async (courseId) => {
     const lessons = await courseService.getLessons(courseId);
