@@ -22,7 +22,7 @@ api.interceptors.response.use(res => {
     return Promise.reject(new Error('Backend not reachable: received HTML instead of JSON. Check VITE_API_URL.'));
   }
   return res;
-}, err => err); // pass errors through to the next interceptor
+}, err => Promise.reject(err)); // MUST reject, otherwise Axios treats it as success
 
 let isRefreshing = false;
 let failedQueue: any[] = [];
