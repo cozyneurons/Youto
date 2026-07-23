@@ -163,7 +163,7 @@ export default function HomePage() {
         .hp2-btn-primary:active,.hp2-btn-secondary:active,.hp2-filter:active,.hp2-text-btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink);}
         .hp2-btn-primary:disabled{cursor:progress;opacity:.65;}
         .hp2-hero-symbol{position:relative;z-index:1;overflow:visible;display:flex;align-items:center;justify-content:center;min-height:540px;background:#FAF6EA;}
-        .hp2.dream .hp2-hero-symbol{background:#ede8f7;}
+        .hp2.dream .hp2-hero, .hp2.dream .hp2-hero-symbol{background:#ede8f7;}
         .hp2-hero-symbol p{position:absolute;right:20px;bottom:16px;left:20px;margin:0;font-family:"DM Mono",monospace;font-size:.74rem;font-weight:500;letter-spacing:.08em;text-align:center;text-transform:uppercase;color:var(--ink);}
         .hp2-illus{width:100%;height:100%;display:block;}
 
