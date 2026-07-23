@@ -69,7 +69,28 @@ def extract_playlist_info(url: str) -> Dict[str, Any]:
 
 
 def extract_video_metadata(url: str) -> Dict[str, Any]:
-    """Return full metadata dict for a single YouTube video."""
+    """Return full metadata dict for a single YouTube video. Uses official API if available to bypass yt-dlp rate limits."""
+    from app.config import settings
+    import httpx
+
+    video_id = extract_video_id_from_url(url)
+    
+    if video_id and settings.YOUTUBE_API_KEY:
+        try:
+            api_url = f"https://www.googleapis.com/youtube/v3/videos?part=snippet&id={video_id}&key={settings.YOUTUBE_API_KEY}"
+            resp = httpx.get(api_url, timeout=10.0)
+            resp.raise_for_status()
+            data = resp.json()
+            items = data.get("items", [])
+            if items:
+                snippet = items[0].get("snippet", {})
+                return {
+                    "title": snippet.get("title", ""),
+                    "description": snippet.get("description", ""),
+                }
+        except Exception as e:
+            logger.warning("YouTube Data API failed for %s: %s", video_id, e)
+            
     ydl_opts = {"quiet": True, "no_warnings": True, "skip_download": True}
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         return ydl.extract_info(url, download=False) or {}
@@ -137,7 +158,7 @@ def get_thumbnail(video_id: str) -> str:
 def extract_video_id_from_url(url: str) -> str:
     """Parse a YouTube video ID from various URL formats."""
     patterns = [
-        r"(?:v=|youtu\.be/|embed/)([a-zA-Z0-9_-]{11})",
+        r"(?:v=|youtu\.be/|embed/|shorts/|live/)([a-zA-Z0-9_-]{11})",
     ]
     for pattern in patterns:
         m = re.search(pattern, url)
