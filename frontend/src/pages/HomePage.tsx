@@ -14,7 +14,6 @@ interface Incident {
   issue: string;
   action: string;
   system: string;
-  icon: string;
   color: string;
 }
 
@@ -30,7 +29,6 @@ const incidents: Incident[] = [
     issue: 'YouTube\'s recommendation algorithm actively fights your focus — every video ends with bait for the next click.',
     action: 'Convert the playlist into a structured Youto course. A locked learning path removes the sidebar and keeps you on track.',
     system: 'Structured Course Paths',
-    icon: '🎯',
     color: '#ffd84d',
   },
   {
@@ -44,7 +42,6 @@ const incidents: Incident[] = [
     issue: 'Long-form YouTube content offers no upfront summary — you only find out it\'s irrelevant 40 minutes in.',
     action: 'Use Youto\'s Gemini AI Summary to get a full breakdown of the video\'s content before committing to watch it.',
     system: 'Gemini AI Video Summaries',
-    icon: '✨',
     color: '#ff9d57',
   },
   {
@@ -58,7 +55,6 @@ const incidents: Incident[] = [
     issue: 'YouTube has no reminders, no progress tracking, and no consequences for quitting.',
     action: 'Set a deadline on your Youto course. You\'ll receive an email reminder if you miss it.',
     system: 'Deadline & Email Reminders',
-    icon: '⏰',
     color: '#8cbcff',
   },
   {
@@ -72,7 +68,6 @@ const incidents: Incident[] = [
     issue: 'YouTube watch history is a flat list — it gives no sense of how far you\'ve come or how far is left to go.',
     action: 'Youto\'s animated progress path turns your course into a visual journey, showing exactly where you are and how much is left.',
     system: 'Curvy Progress Path UI',
-    icon: '🛤️',
     color: '#ff9fca',
   },
   {
@@ -86,7 +81,6 @@ const incidents: Incident[] = [
     issue: 'Studying in isolation makes it easy to quit — there\'s no social pressure or shared progress to keep you going.',
     action: 'Share your Youto course path with up to 5 friends. Watch each other\'s avatars progress in real time on the same path.',
     system: 'Shared Course Paths',
-    icon: '👥',
     color: '#a9e76c',
   },
   {
@@ -100,7 +94,6 @@ const incidents: Incident[] = [
     issue: 'Switching between a video and a notes app breaks focus and disconnects your insights from the exact moment that inspired them.',
     action: 'Take notes directly inside Youto. Type a timestamp like 12:34 and it becomes a clickable button that jumps the video to that exact moment.',
     system: 'In-video Notes with Timestamps',
-    icon: '📝',
     color: '#c4b5fd',
   },
 ];
@@ -540,10 +533,9 @@ export default function HomePage() {
                 </div>
                 <div className="hp2-rec-box">
                   <div>
-                    <span>Recommended system</span>
+                    <span>Preventative measure</span>
                     <strong>{selected.system}</strong>
                   </div>
-                  <span className="hp2-sys-icon" aria-hidden="true">{selected.icon}</span>
                 </div>
               </aside>
             </div>

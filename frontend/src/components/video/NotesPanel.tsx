@@ -120,7 +120,7 @@ export default function NotesPanel({ lessonId, summary: initialSummary }: Props)
                 onClick={handleGenerateSummary}
                 disabled={isGenerating}
               >
-                {isGenerating ? <><span className="spinner-sm" /> Generating…</> : '✨ Generate AI Summary'}
+                {isGenerating ? <><span className="spinner-sm" /> Generating…</> : 'Generate AI Summary'}
               </button>
             </div>
           )}

@@ -26,6 +26,7 @@ export default function CoursePage() {
 
   const [friends, setFriends] = useState<FriendProgress[]>([]);
   const [isSharing, setIsSharing] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
   const [shareMessage, setShareMessage] = useState('');
   const shareMessageTimeoutRef = useRef<number | null>(null);
 
@@ -144,6 +145,7 @@ export default function CoursePage() {
       shareMessageTimeoutRef.current = null;
     }
     setIsSharing(true);
+    setIsCopied(false);
     setShareMessage('');
     try {
       const res = await api.post(`/api/courses/${courseId}/share`);
@@ -151,7 +153,8 @@ export default function CoursePage() {
       const joinUrl = `${window.location.origin}/join/${token}`;
       try {
         await navigator.clipboard.writeText(joinUrl);
-        setShareMessage('Invite link copied to clipboard!');
+        setShareMessage('Link Copied!');
+        setIsCopied(true);
       } catch (clipErr) {
         setShareMessage(`Invite link generated: ${joinUrl} (copy manually)`);
       }
@@ -161,8 +164,9 @@ export default function CoursePage() {
       setIsSharing(false);
       shareMessageTimeoutRef.current = window.setTimeout(() => {
         setShareMessage('');
+        setIsCopied(false);
         shareMessageTimeoutRef.current = null;
-      }, 10000); // 10 seconds for manual copy just in case
+      }, 5000); // Reset button back after 5 seconds
     }
   };
 
@@ -181,14 +185,36 @@ export default function CoursePage() {
             <div style={{ position: 'relative' }}>
               <button
                 onClick={handleShare}
-                disabled={isSharing}
-                className="btn btn-outline"
-                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                disabled={isSharing || isCopied}
+                className={isCopied ? "btn" : "btn btn-outline"}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  ...(isCopied ? {
+                    background: 'var(--success, #a9e76c)',
+                    color: 'var(--ink, #171717)',
+                    border: '2px solid var(--ink, #171717)',
+                    cursor: 'not-allowed',
+                    opacity: 1,
+                    fontWeight: 700,
+                    boxShadow: '3px 3px 0 var(--ink, #171717)'
+                  } : {})
+                }}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                {isSharing ? 'Generating...' : 'Share Path'}
+                {isCopied ? (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    Link Copied!
+                  </>
+                ) : (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                    {isSharing ? 'Generating...' : 'Share Path'}
+                  </>
+                )}
               </button>
-              {shareMessage && (
+              {shareMessage && !isCopied && (
                 <div style={{
                   position: 'absolute', top: '100%', right: '0', marginTop: '8px',
                   padding: '8px 12px', background: 'var(--bg-elevated)', border: '1px solid var(--color-border)',
