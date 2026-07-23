@@ -6,7 +6,7 @@ interface HeatmapProps {
   longestStreak: number;
 }
 
-export default function LeetcodeHeatmap({ data, longestStreak }: HeatmapProps) {
+export default function LeetcodeHeatmap({ data = {}, longestStreak }: HeatmapProps) {
   const [tooltip, setTooltip] = useState<{ visible: boolean; x: number; y: number; content: string }>({
     visible: false,
     x: 0,
