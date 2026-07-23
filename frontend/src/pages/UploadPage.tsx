@@ -11,9 +11,12 @@ export default function UploadPage() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const navigationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isMounted = useRef(true);
 
   useEffect(() => {
+    isMounted.current = true;
     return () => {
+      isMounted.current = false;
       if (navigationTimer.current) clearTimeout(navigationTimer.current);
     };
   }, []);
@@ -31,12 +34,14 @@ export default function UploadPage() {
     setIsLoading(true);
     try {
       const course = await uploadService.extractPlaylist(url);
+      if (!isMounted.current) return;
       setIsSuccess(true);
       navigationTimer.current = setTimeout(() => navigate(`/course/${course.id}`), 1500);
     } catch (err: any) {
+      if (!isMounted.current) return;
       setError(err.response?.data?.detail || err.message || 'Failed to extract playlist. Try a different URL.');
     } finally {
-      setIsLoading(false);
+      if (isMounted.current) setIsLoading(false);
     }
   };
 

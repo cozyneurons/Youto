@@ -29,15 +29,25 @@ export default function CoursePage() {
   const [isCopied, setIsCopied] = useState(false);
   const [shareMessage, setShareMessage] = useState('');
   const shareMessageTimeoutRef = useRef<number | null>(null);
+  const currentShareCourseId = useRef(courseId);
 
   useEffect(() => {
-    // Cleanup timeout on unmount
+    currentShareCourseId.current = courseId;
+    // Clear state on course change
+    if (shareMessageTimeoutRef.current !== null) {
+      window.clearTimeout(shareMessageTimeoutRef.current);
+      shareMessageTimeoutRef.current = null;
+    }
+    setIsCopied(false);
+    setShareMessage('');
+    setIsSharing(false);
+
     return () => {
       if (shareMessageTimeoutRef.current !== null) {
         window.clearTimeout(shareMessageTimeoutRef.current);
       }
     };
-  }, []);
+  }, [courseId]);
 
   useEffect(() => {
     // Fetch friends initially
@@ -140,6 +150,7 @@ export default function CoursePage() {
   }, [courseId, user]);
 
   const handleShare = async () => {
+    const targetCourseId = courseId;
     if (shareMessageTimeoutRef.current !== null) {
       window.clearTimeout(shareMessageTimeoutRef.current);
       shareMessageTimeoutRef.current = null;
@@ -148,25 +159,33 @@ export default function CoursePage() {
     setIsCopied(false);
     setShareMessage('');
     try {
-      const res = await api.post(`/api/courses/${courseId}/share`);
+      const res = await api.post(`/api/courses/${targetCourseId}/share`);
+      if (currentShareCourseId.current !== targetCourseId) return;
       const token = res.data.token;
       const joinUrl = `${window.location.origin}/join/${token}`;
       try {
         await navigator.clipboard.writeText(joinUrl);
+        if (currentShareCourseId.current !== targetCourseId) return;
         setShareMessage('Link Copied!');
         setIsCopied(true);
       } catch (clipErr) {
+        if (currentShareCourseId.current !== targetCourseId) return;
         setShareMessage(`Invite link generated: ${joinUrl} (copy manually)`);
       }
     } catch (e: any) {
+      if (currentShareCourseId.current !== targetCourseId) return;
       setShareMessage(e.response?.data?.detail || 'Failed to share course.');
     } finally {
-      setIsSharing(false);
-      shareMessageTimeoutRef.current = window.setTimeout(() => {
-        setShareMessage('');
-        setIsCopied(false);
-        shareMessageTimeoutRef.current = null;
-      }, 5000); // Reset button back after 5 seconds
+      if (currentShareCourseId.current === targetCourseId) {
+        setIsSharing(false);
+        shareMessageTimeoutRef.current = window.setTimeout(() => {
+          if (currentShareCourseId.current === targetCourseId) {
+            setShareMessage('');
+            setIsCopied(false);
+            shareMessageTimeoutRef.current = null;
+          }
+        }, 5000); // Reset button back after 5 seconds
+      }
     }
   };
 
