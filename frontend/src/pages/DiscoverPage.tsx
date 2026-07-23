@@ -89,7 +89,7 @@ export default function DiscoverPage() {
       const course = await uploadService.extractPlaylist(url.trim());
       navigate(`/course/${course.id}`);
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to extract playlist. Try a different URL.');
+      setError(err.response?.data?.detail || err.message || 'Failed to extract playlist. Try a different URL.');
     } finally {
       setBusyAction(null);
     }
