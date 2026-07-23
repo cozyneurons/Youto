@@ -4,7 +4,7 @@ import type { Course, Lesson } from '../types';
 export const courseService = {
   getCourses: async (): Promise<Course[]> => {
     const { data } = await api.get<Course[]>('/api/courses/');
-    return data;
+    return Array.isArray(data) ? data : [];
   },
 
   getCourse: async (id: number): Promise<Course> => {
@@ -14,7 +14,7 @@ export const courseService = {
 
   getLessons: async (courseId: number): Promise<Lesson[]> => {
     const { data } = await api.get<Lesson[]>(`/api/lessons/course/${courseId}`);
-    return data;
+    return Array.isArray(data) ? data : [];
   },
 
   getLesson: async (lessonId: number): Promise<Lesson> => {

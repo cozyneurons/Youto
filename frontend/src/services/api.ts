@@ -14,6 +14,16 @@ api.interceptors.request.use(config => {
   return config;
 });
 
+// Detect HTML responses: this happens when VITE_API_URL is wrong/unset
+// and Vercel returns index.html instead of JSON.
+api.interceptors.response.use(res => {
+  const contentType = String(res.headers['content-type'] ?? '');
+  if (contentType.includes('text/html')) {
+    return Promise.reject(new Error('Backend not reachable: received HTML instead of JSON. Check VITE_API_URL.'));
+  }
+  return res;
+}, err => err); // pass errors through to the next interceptor
+
 let isRefreshing = false;
 let failedQueue: any[] = [];
 
