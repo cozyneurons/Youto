@@ -73,3 +73,23 @@ def invalidate_cache(key: str) -> None:
         _redis.delete(key)
     except Exception as exc:
         logger.debug("Redis DELETE error: %s", exc)
+
+
+def revoke_refresh_token(jti: str, ttl_days: int = 30) -> None:
+    # TTL should ideally match the remaining life of the token, but a fixed upper bound is safe.
+    ttl_seconds = ttl_days * 24 * 60 * 60
+    _set(f"revoked_token:{jti}", "1", ttl_seconds)
+
+
+class RedisUnavailableError(Exception):
+    pass
+
+
+def is_refresh_token_revoked(jti: str) -> bool:
+    if not _redis:
+        raise RedisUnavailableError("Redis is not configured or unavailable")
+    try:
+        return _redis.get(f"revoked_token:{jti}") is not None
+    except Exception as exc:
+        logger.error("Redis error checking token revocation: %s", exc)
+        raise RedisUnavailableError("Redis encountered an error") from exc

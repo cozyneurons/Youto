@@ -8,9 +8,10 @@ from app.services.auth_service import (
     verify_password,
     create_access_token,
     create_refresh_token,
+    verify_token,
 )
 from app.services.email_service import send_welcome_email
-from app.schemas.user import UserCreate, UserLogin, UserResponse, TokenResponse, GoogleOAuthRequest
+from app.schemas.user import UserCreate, UserLogin, UserResponse, TokenResponse, GoogleOAuthRequest, RefreshRequest, RefreshTokenResponse
 from app.models.user import User
 from app.models.user_stats import UserStats
 from app.middleware.auth_middleware import get_current_user
@@ -56,6 +57,45 @@ def login(payload: UserLogin, db: Session = Depends(get_db)):
         access_token=create_access_token({"sub": str(user.id)}),
         refresh_token=create_refresh_token({"sub": str(user.id)}),
         user=UserResponse.model_validate(user),
+    )
+
+
+from app.services.redis_service import revoke_refresh_token, is_refresh_token_revoked, RedisUnavailableError
+
+@router.post("/refresh", response_model=RefreshTokenResponse)
+def refresh_token(payload: RefreshRequest, db: Session = Depends(get_db)):
+    """Refresh an access token using a valid refresh token (Refresh Token Rotation)."""
+    payload_data = verify_token(payload.refresh_token)
+    if not payload_data or payload_data.get("type") != "refresh":
+        raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
+
+    jti = payload_data.get("jti")
+    if not jti:
+        # For backwards compatibility with old tokens without a jti, we could allow it or reject it.
+        # But for strict security, we reject it.
+        raise HTTPException(status_code=401, detail="Invalid refresh token structure")
+
+    try:
+        if is_refresh_token_revoked(jti):
+            raise HTTPException(status_code=401, detail="Refresh token has already been consumed or revoked")
+    except RedisUnavailableError:
+        raise HTTPException(status_code=503, detail="Service unavailable for token validation")
+
+    user_id = payload_data.get("sub")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid token subject")
+
+    user = db.query(User).filter(User.id == int(user_id)).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="User no longer exists")
+
+    # Mark the old refresh token as consumed
+    from app.config import settings
+    revoke_refresh_token(jti, ttl_days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+
+    return RefreshTokenResponse(
+        access_token=create_access_token({"sub": str(user.id)}),
+        refresh_token=create_refresh_token({"sub": str(user.id)}),
     )
 
 
