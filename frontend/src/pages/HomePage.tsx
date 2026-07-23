@@ -104,7 +104,7 @@ type Filter = 'all' | 'distraction' | 'blocker' | 'failure';
 export default function HomePage() {
   const [selectedId, setSelectedId] = useState(1);
   const [filter, setFilter] = useState<Filter>('all');
-  const [dreamMode, setDreamMode] = useState(false);
+  const [dreamMode, setDreamMode] = useState(true);
 
   const auditTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -259,8 +259,8 @@ export default function HomePage() {
                 <Link to="/discover" className="hp2-btn-primary">
                   Discover Courses
                 </Link>
-                <button className="hp2-btn-secondary" onClick={handleDream} aria-pressed={!dreamMode} type="button">
-                  Doomscroll Mode: {dreamMode ? 'OFF' : 'ON'}
+                <button className="hp2-btn-secondary" onClick={handleDream} aria-pressed={dreamMode} type="button">
+                  Doomscroll Mode: {dreamMode ? 'ON' : 'OFF'}
                 </button>
               </div>
             </div>
