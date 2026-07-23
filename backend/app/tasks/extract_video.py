@@ -46,6 +46,16 @@ def extract_video_task(self, video_id: str, lesson_id: int):
             except Exception as meta_exc:
                 logger.warning(f"Failed to fetch metadata for {video_id}: {meta_exc}")
                 
+        # Fallback: if we STILL have no description, but we have a transcript, generate one using Gemini
+        if not lesson.description and getattr(lesson, 'transcript', None):
+            try:
+                from app.services.llm_service import generate_summary
+                ai_desc = generate_summary(lesson.transcript)
+                if ai_desc:
+                    lesson.description = f"**AI Generated Description:**\n\n{ai_desc}"
+            except Exception as ai_exc:
+                logger.warning(f"Failed to generate AI fallback description for {video_id}: {ai_exc}")
+                
         db.commit()
     except Exception as exc:
         raise self.retry(exc=exc, countdown=2 ** self.request.retries)
