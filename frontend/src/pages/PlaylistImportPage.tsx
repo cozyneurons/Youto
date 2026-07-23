@@ -76,8 +76,7 @@ export default function PlaylistImportPage() {
           ) : (
             <>
               <div className="w-16 h-16 border-4 border-yellow border-t-ink rounded-full animate-spin mb-6"></div>
-              <h1 className="text-2xl font-bold mb-4">Magic Import in Progress!</h1>
-              <p className="text-gray-600 mb-2">We caught your playlist ID: <span className="font-mono bg-gray-200 px-2 rounded">{listId}</span></p>
+              <h1 className="text-2xl font-bold mb-4">Loading Playlist...</h1>
               <p className="text-gray-600">Building your structured course. This will just take a second...</p>
             </>
           )}
