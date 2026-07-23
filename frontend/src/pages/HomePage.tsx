@@ -259,8 +259,8 @@ export default function HomePage() {
                 <Link to="/discover" className="hp2-btn-primary">
                   Discover Courses
                 </Link>
-                <button className="hp2-btn-secondary" onClick={handleDream} aria-pressed={dreamMode} type="button">
-                  Doomscroll Mode: {dreamMode ? 'ON' : 'OFF'}
+                <button className="hp2-btn-secondary" onClick={handleDream} aria-pressed={!dreamMode} type="button">
+                  Doomscroll Mode: {dreamMode ? 'OFF' : 'ON'}
                 </button>
               </div>
             </div>
