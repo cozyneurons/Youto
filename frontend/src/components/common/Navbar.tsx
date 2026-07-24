@@ -79,8 +79,7 @@ export default function Navbar() {
           </>
         ) : (
           <>
-            <Link to="/login" className="nav-link" style={{ fontWeight: 500, marginLeft: '8px' }}>Sign in</Link>
-            <Link to="/signup" className="btn btn-primary btn-sm">Get Started</Link>
+            <Link to="/login" className="btn btn-primary btn-sm" style={{ fontWeight: 500, marginLeft: '8px' }}>Log in</Link>
           </>
         )}
       </div>
