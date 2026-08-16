@@ -48,6 +48,6 @@ def startup():
     create_tables()
 
 
-@app.get("/api/health", tags=["health"])
+@app.api_route("/api/health", methods=["GET", "HEAD"], tags=["health"])
 def health():
     return {"status": "ok"}
