@@ -39,8 +39,9 @@ htmlcov/
 .dmypy.json
 
 # === Alembic ===
-backend/alembic/versions/*.py
-!backend/alembic/versions/.gitkeep
+# (Migrations MUST be committed to version control so Render can run them)
+# backend/alembic/versions/*.py
+# !backend/alembic/versions/.gitkeep
 
 # === Docker ===
 .dockerenv
