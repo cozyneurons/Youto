@@ -1,8 +1,14 @@
 from celery import Celery
+from celery.signals import worker_process_init
 from app.config import settings
 
 celery_app = Celery("youto")
 celery_app.config_from_object("app.celery_config")
+
+@worker_process_init.connect
+def init_celery_db_pool(**kwargs):
+    from app.services.database import engine
+    engine.dispose()
 
 celery_app.conf.task_routes = {
     "extract_video": {"queue": "celery"},
