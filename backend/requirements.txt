@@ -24,7 +24,7 @@ redis==5.0.6
 celery==5.4.0
 
 # YouTube extraction
-yt-dlp==2026.7.4
+yt-dlp==2026.8.19
 youtube-transcript-api==0.6.2
 
 # AI / LLM
