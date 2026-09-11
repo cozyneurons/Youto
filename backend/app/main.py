@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.middleware.error_handler import add_error_handlers
@@ -51,3 +51,25 @@ def startup():
 @app.api_route("/api/health", methods=["GET", "HEAD"], tags=["health"])
 def health():
     return {"status": "ok"}
+
+
+@app.post("/api/cron/check-overdue", tags=["cron"])
+def check_overdue(token: str):
+    """Trigger daily check for overdue courses. Protect with a secret token."""
+    if token != settings.SECRET_KEY:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=403, detail="Invalid cron token")
+    from app.tasks.check_overdue import check_overdue_courses_task
+    check_overdue_courses_task()
+    return {"status": "ok", "message": "Overdue check completed"}
+
+
+@app.post("/api/cron/retry-extractions", tags=["cron"])
+def retry_extractions(token: str, background_tasks: BackgroundTasks):
+    """Trigger retry for failed video extractions. Protect with a secret token."""
+    if token != settings.SECRET_KEY:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=403, detail="Invalid cron token")
+    from app.tasks.retry_extractions import retry_incomplete_extractions
+    queued_count = retry_incomplete_extractions(background_tasks)
+    return {"status": "ok", "message": f"Queued {queued_count} lessons for retry"}

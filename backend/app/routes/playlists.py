@@ -108,10 +108,16 @@ def extract_playlist(
     # ── Trigger async transcript extraction ──────────────────────────────────
     from app.tasks.extract_video import extract_video_task
     # Fetch lessons to get their IDs
-    lessons = db.query(Lesson).filter(Lesson.course_id == course.id).all()
+    lesson_ids_by_order = {
+        lesson.order_index: lesson.id
+        for lesson in db.query(Lesson).filter(Lesson.course_id == course.id).all()
+    }
     for idx, v in enumerate(videos):
-        # Enqueue the Celery task to fetch captions for each video in the background
-        extract_video_task.delay(v["video_id"], lessons[idx].id)
+        background_tasks.add_task(
+            extract_video_task,
+            v["video_id"],
+            lesson_ids_by_order[v["order_index"]],
+        )
 
     # ── Cache result ─────────────────────────────────────────────────────────
     cache_curriculum(cache_key, {"course_id": course.id})

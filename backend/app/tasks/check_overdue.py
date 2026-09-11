@@ -1,13 +1,11 @@
 from datetime import date
 from sqlalchemy.orm import Session
-from app.tasks.extract_video import celery_app
 from app.services.database import SessionLocal
 from app.models.course import Course
 from app.models.notification import Notification
 from app.services.email_service import send_overdue_email
 
 
-@celery_app.task(name="check_overdue_courses_task")
 def check_overdue_courses_task():
     """Daily scheduled task to check for overdue courses and notify users."""
     db: Session = SessionLocal()

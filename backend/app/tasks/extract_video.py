@@ -1,25 +1,4 @@
-from celery import Celery
-from celery.signals import worker_process_init
-from app.config import settings
-
-celery_app = Celery("youto")
-celery_app.config_from_object("app.celery_config")
-
-@worker_process_init.connect
-def init_celery_db_pool(**kwargs):
-    from app.services.database import engine
-    engine.dispose()
-
-celery_app.conf.task_routes = {
-    "extract_video": {"queue": "celery"},
-    "generate_summary": {"queue": "celery"},
-    "send_notification": {"queue": "celery"},
-    "check_overdue_courses_task": {"queue": "celery"},
-}
-
-
-@celery_app.task(name="extract_video", bind=True, max_retries=3)
-def extract_video_task(self, video_id: str, lesson_id: int):
+def extract_video_task(video_id: str, lesson_id: int):
     """
     Async task: fetch captions and full metadata (like description) for a video 
     and update the Lesson record.
@@ -35,6 +14,13 @@ def extract_video_task(self, video_id: str, lesson_id: int):
         lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
         if not lesson:
             return
+
+        # Mark as processing
+        from datetime import datetime, timezone
+        lesson.extraction_status = "processing"
+        lesson.extraction_attempts = (lesson.extraction_attempts or 0) + 1
+        lesson.processing_started_at = datetime.now(timezone.utc)
+        db.commit()
 
         # Fetch transcript
         transcript_text = get_captions(video_id)
@@ -62,8 +48,18 @@ def extract_video_task(self, video_id: str, lesson_id: int):
             except Exception as ai_exc:
                 logger.warning(f"Failed to generate AI fallback description for {video_id}: {ai_exc}")
                 
+        # Mark as completed
+        lesson.extraction_status = "completed"
+        lesson.extraction_error = None
         db.commit()
     except Exception as exc:
-        raise self.retry(exc=exc, countdown=2 ** self.request.retries)
+        logger.error(f"Failed to extract video {video_id}: {exc}")
+        if 'lesson' in locals() and lesson:
+            lesson.extraction_error = str(exc)
+            if (lesson.extraction_attempts or 0) >= 3:
+                lesson.extraction_status = "failed"
+            else:
+                lesson.extraction_status = "pending_retry"
+            db.commit()
     finally:
         db.close()

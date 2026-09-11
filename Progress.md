@@ -1,28 +1,28 @@
-# Project Progress Checklist
+# Project Progress & Changes
 
-- [x] Analyze initial architecture document (`Yt-Cr-v2.md`).
-- [x] Split architecture into Frontend, Backend, and System domains.
-- [x] Create `Yt-Cr-Frontend.md`.
-- [x] Create `Yt-Cr-Backend.md`.
-- [x] Create `Yt-Cr-System.md`.
-- [x] Set up Project Root Structure (directories, `.gitignore`, `README`).
-- [x] Initialize Frontend project (Vite + React + TS).
-- [x] Initialize Backend project (FastAPI + Python).
-- [x] Setup Docker & `docker-compose.yml` for local development (PostgreSQL, Redis).
-- [x] Implement Database Models (SQLAlchemy — User, Course, Lesson, Progress, UserStats).
-- [x] Implement Backend Services (YouTube yt-dlp extraction, Gemini integration, Redis, Auth).
-- [x] Implement Backend API Routes (Auth, Courses, Lessons, Progress, Notes, Users, Playlists).
-- [x] Implement Frontend State Management (Zustand stores — auth, course, progress, UI).
-- [x] Implement Frontend UI Components (PathGraph SVG, VideoNode, VideoPlayer, NotesPanel, Auth forms, Dashboard).
-- [x] Implement Frontend Pages (9 pages — Home, Dashboard, Upload, Course, Lesson, Login, Signup, Profile, 404).
-- [x] Frontend Hooks (useAuth, useCourse, useLessons, useProgress, useScrollReveal, useVideoPlayer, useMediaQuery).
-- [x] Frontend Services (API axios instance + 6 service modules).
-- [x] Frontend Config (vite, tsconfig, tailwind, postcss, index.html, env).
-- [x] Frontend builds cleanly — `npm run build` passes (119 modules, 766ms).
-- [x] TypeScript type-check passes (`tsc --noEmit` zero errors).
-- [x] Set up GitHub Actions CI/CD Pipeline (build-and-deploy.yml + test.yml).
-- [x] Backend Dockerfile + Docker Compose with all 5 services.
-- [ ] Add API keys to `backend/.env` (GEMINI_API_KEY — when available).
-- [ ] Run `docker-compose up` to start the full stack locally.
-- [ ] Run `pytest` backend tests (requires installed Python deps).
-- [ ] Final Deployment (Oracle Cloud VM, Netlify).
+## 1. YouTube Extraction Fix
+- **Issue**: `yt-dlp` was failing to extract playlist metadata due to outdated parsing logic breaking against new YouTube layouts.
+- **Fix**: Updated `yt-dlp` version to `2026.8.19` in `requirements.txt`.
+
+## 2. Render Database Configuration Fixes
+- **Issue**: `OperationalError` and connection drops when idle, plus connection limit errors from exceeding free-tier max connections (50).
+- **Fix**: Updated `backend/app/services/database.py` to include `pool_recycle=280` (preventing Render's 5-minute idle timeout kill), and decreased `pool_size` and `max_overflow` to stay within Render's free tier connection limits.
+- **Issue**: App failing to start due to `postgres://` protocol rejection by SQLAlchemy.
+- **Fix**: Added dynamic replacement logic in `backend/app/config.py` to automatically convert Render's `postgres://` URLs to `postgresql://`.
+
+## 3. Celery Removal & BackgroundTasks Migration
+- **Issue**: Render charges for a dedicated Background Worker process required by Celery, which isn't free.
+- **Fix**: 
+  - Completely removed the `celery` dependency from `requirements.txt`.
+  - Stripped out Celery configurations from `config.py` and deleted `celery_config.py`.
+  - Converted `@celery_app.task` decorators in `extract_video.py`, `send_notifications.py`, and `check_overdue.py` into native Python functions.
+  - Migrated async task triggering in `playlists.py` to use FastAPI's built-in `BackgroundTasks` instead of Celery's `.delay()`.
+
+## 4. Persistent Failure Handling & Scheduled Recovery
+- **Issue**: FastAPI's `BackgroundTasks` are tied to the web process and are lost on restart, requiring a durable retry solution for failed/interrupted video extractions.
+- **Fix**:
+  - Added `extraction_status`, `extraction_attempts`, `extraction_error`, and `processing_started_at` columns to the `Lesson` model.
+  - Generated an Alembic migration script (`d6bef82b2171`) to apply these schema changes.
+  - Updated `extract_video.py` to set a processing timestamp lease when starting, track task attempts, log errors directly into the database, and mark extractions as `failed` after 3 attempts (or `pending_retry`).
+  - Added a new scheduled recovery module `backend/app/tasks/retry_extractions.py` to find and re-queue incomplete extractions (including `processing` leases that have expired after 1 hour).
+  - Created two new secure API endpoints in `main.py` (`/api/cron/check-overdue` and `/api/cron/retry-extractions`) meant to be pinged by an external free cron service (like UptimeRobot) to replace Celery Beat.

@@ -21,7 +21,7 @@ python-multipart==0.0.9
 redis==5.0.6
 
 # Async tasks
-celery==5.4.0
+# (Removed Celery)
 
 # YouTube extraction
 yt-dlp==2026.8.19
