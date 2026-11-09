@@ -28,6 +28,45 @@ Convert any YouTube playlist into a structured course with a curvy path UI, vide
 | Auth | JWT + bcrypt + Google OAuth (`@react-oauth/google`) |
 | Deploy | Oracle Cloud VM + Netlify + Docker |
 
+## System Architecture
+
+```mermaid
+flowchart TD
+    subgraph Client ["Client Layer"]
+        Browser["User Browser"]
+        SPA["React 18 + Vite SPA<br/>Tailwind CSS, TipTap Editor, Zustand"]
+        Browser -->|"HTTPS / WSS"| SPA
+    end
+
+    subgraph AppServer ["Application Server"]
+        FastAPI["FastAPI Backend (Python 3.11)<br/>REST API, WebSockets, JWT & Google Auth"]
+        SPA -->|"REST Requests & WebSockets"| FastAPI
+    end
+
+    subgraph DataPlane ["Data & Background Processing"]
+        Postgres[("PostgreSQL 16<br/>Courses, Lessons, Notes, Progress")]
+        Redis[("Redis 7<br/>Task Broker & Response Cache")]
+        Worker["Celery Worker<br/>Extraction & Transcription"]
+        
+        FastAPI -->|"SQLAlchemy ORM"| Postgres
+        FastAPI -->|"Cache & Tasks"| Redis
+        Redis -->|"Consume Queue"| Worker
+        Worker -->|"Write Status & Transcripts"| Postgres
+    end
+
+    subgraph External ["External Integrations"]
+        GoogleAuth["Google Identity (OAuth 2.0)"]
+        YT["YouTube Data API v3 & yt-dlp"]
+        Gemini["Google Gemini 3.1 Flash Lite"]
+        Reddit["Arctic Shift API (Reddit Sentiment)"]
+
+        FastAPI -->|"Verify Auth"| GoogleAuth
+        FastAPI -->|"Community Sentiment"| Reddit
+        Worker -->|"Fetch Transcripts / Videos"| YT
+        Worker -->|"AI Summarization"| Gemini
+    end
+```
+
 ## Local Development
 
 ### Prerequisites

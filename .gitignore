@@ -69,3 +69,4 @@ logs/
 # Local generated files
 backend_logs.txt
 backend/celerybeat-schedule
+GEMINI.md
