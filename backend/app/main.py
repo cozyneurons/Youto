@@ -16,9 +16,17 @@ app = FastAPI(
 )
 
 # ── CORS ────────────────────────────────────────────────────────────────────
+cors_origins = list(set([
+    "https://youto.app",
+    "https://www.youto.app",
+    "http://localhost:5173",
+    "http://localhost:3000",
+] + settings.ALLOWED_ORIGINS))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_origins=cors_origins,
+    allow_origin_regex=r"^https:\/\/.*\.vercel\.app$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
