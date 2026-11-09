@@ -73,3 +73,4 @@ backend/celerybeat-schedule
 # Local-only config & secrets (never push to GitHub)
 GEMINI.md
 AWS_SETUP.md
+devops.md
