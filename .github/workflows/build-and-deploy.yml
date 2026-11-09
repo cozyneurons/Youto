@@ -162,8 +162,8 @@ jobs:
           echo "Waiting 15s for containers to stabilise..."
           sleep 15
           curl --fail --retry 5 --retry-delay 5 --retry-connrefused \
-            http://${{ secrets.AWS_HOST }}:8000/api/health \
-            && echo "✅ Health check passed" \
+            https://api.youto.app/api/health \
+            && echo "✅ HTTPS Health check passed" \
             || (echo "❌ Health check failed" && exit 1)
 
 
