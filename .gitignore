@@ -69,4 +69,7 @@ logs/
 # Local generated files
 backend_logs.txt
 backend/celerybeat-schedule
+
+# Local-only config & secrets (never push to GitHub)
 GEMINI.md
+AWS_SETUP.md
