@@ -121,4 +121,49 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 
+  # ── Deploy ─────────────────────────────────────────────────────────────────
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: ${{ secrets.AWS_HOST != '' }}
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_SSH_KEY }}
+          script: |
+            set -e
+            cd /home/ubuntu/youto
+
+            # Log into GHCR so docker can pull images
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+            # Pull latest images
+            docker compose pull
+
+            # Restart services with zero-downtime rolling update
+            docker compose up -d --remove-orphans
+
+            # Run DB migrations
+            docker compose exec -T backend alembic upgrade head
+
+            # Clean up dangling images to free disk space
+            docker image prune -f
+
+      # ── Deployment Smoke Test ──────────────────────────────────────────────
+      - name: Smoke test — health check
+        run: |
+          echo "Waiting 15s for containers to stabilise..."
+          sleep 15
+          curl --fail --retry 5 --retry-delay 5 --retry-connrefused \
+            http://${{ secrets.AWS_HOST }}:8000/api/health \
+            && echo "✅ Health check passed" \
+            || (echo "❌ Health check failed" && exit 1)
+
 

@@ -1,0 +1,65 @@
+# Production Docker Compose — Youto
+# Uses pre-built GHCR images (pushed by GitHub Actions CI/CD)
+# Frontend is served by Netlify
+
+services:
+  # ── Database ─────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: youto-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-youto}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - youto-net
+
+  # ── Cache ─────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: youto-redis
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - youto-net
+
+  # ── Backend ───────────────────────────────────────────────────────────────
+  backend:
+    image: ghcr.io/cozyneurons/youto/backend:latest
+    container_name: youto-backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-youto}
+      REDIS_URL: redis://redis:6379
+      SECRET_KEY: ${SECRET_KEY}
+      YOUTUBE_API_KEY: ${YOUTUBE_API_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - youto-net
+
+networks:
+  youto-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
