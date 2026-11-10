@@ -1,6 +1,8 @@
 # Production Docker Compose — Youto
 # Uses pre-built GHCR images (pushed by GitHub Actions CI/CD)
 # Frontend is served by Netlify
+# All secrets (POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB) must be set in .env
+# Never commit .env — it is gitignored
 
 services:
   # ── Database ─────────────────────────────────────────────────────────────
@@ -8,13 +10,13 @@ services:
     image: postgres:16-alpine
     container_name: youto-postgres
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-youto}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -41,7 +43,7 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-youto}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       REDIS_URL: redis://redis:6379
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000
     depends_on:
