@@ -34,6 +34,11 @@ METADATA_SUMMARY_PROMPT = (
     "Video Overview / Description:\n{description}"
 )
 
+# Content thresholds shared with routes/lessons.py
+MIN_TRANSCRIPT_LEN = 50
+MIN_DESCRIPTION_LEN = 20
+MIN_TITLE_LEN = 3
+
 
 def generate_summary(
     transcript: str | None = None,
@@ -50,18 +55,19 @@ def generate_summary(
         return ""
 
     prompt = ""
-    if transcript and len(transcript.strip()) >= 50:
+    if transcript and len(transcript.strip()) >= MIN_TRANSCRIPT_LEN:
         if len(transcript) > 100000:
             transcript = transcript[:100000]
         prompt = SUMMARY_PROMPT.format(transcript=transcript)
-    elif description and len(description.strip()) >= 20:
+    elif description and len(description.strip()) >= MIN_DESCRIPTION_LEN:
         clean_desc = description.strip()[:4000]
-        clean_title = (title or "Lesson").strip()
+        clean_title = (title or "Lesson").strip()[:200]
         prompt = METADATA_SUMMARY_PROMPT.format(title=clean_title, description=clean_desc)
-    elif title and len(title.strip()) >= 3:
-        prompt = (
-            f"You are an educational tutor. Briefly explain the key learning objectives and concepts "
-            f"a student will learn in a lesson titled '{title.strip()}' in 2-3 concise sentences."
+    elif title and len(title.strip()) >= MIN_TITLE_LEN:
+        clean_title = (title or "").strip()[:200]
+        prompt = METADATA_SUMMARY_PROMPT.format(
+            title=clean_title,
+            description="No additional description is available for this lesson.",
         )
     else:
         return ""
@@ -87,7 +93,18 @@ def _call_gemini(prompt: str) -> str:
         try:
             model = genai.GenerativeModel(model_name)
             response = model.generate_content(prompt)
-            return response.text.strip()
+            try:
+                text = response.text.strip()
+            except ValueError as ve:
+                # Gemini raises ValueError when the response is blocked (e.g., safety filters)
+                logger.warning("Gemini model %s returned a blocked response: %s. Trying next...", model_name, ve)
+                last_err = ve
+                continue
+            if not text:
+                logger.warning("Gemini model %s returned an empty response. Trying next...", model_name)
+                last_err = RuntimeError(f"Empty response from {model_name}")
+                continue
+            return text
         except Exception as exc:
             last_err = exc
             logger.warning("Gemini model %s failed: %s. Trying next...", model_name, exc)

@@ -81,8 +81,13 @@ def _find_cookies_file() -> str | None:
         "cookies.txt",
     ]
     for c in candidates:
-        if c and os.path.isfile(c) and os.path.getsize(c) > 0:
-            return c
+        if not c:
+            continue
+        try:
+            if os.path.isfile(c) and os.path.getsize(c) > 0:
+                return c
+        except OSError:
+            continue
     return None
 
 
@@ -164,9 +169,10 @@ def get_captions(video_id: str) -> str:
                 ydl_opts["cookiefile"] = cookies_file
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(f"https://www.youtube.com/watch?v={video_id}", download=False)
-                subs = info.get("subtitles", {}).get("en", [])
+                info = info or {}
+                subs = (info.get("subtitles") or {}).get("en", [])
                 if not subs:
-                    subs = info.get("automatic_captions", {}).get("en", [])
+                    subs = (info.get("automatic_captions") or {}).get("en", [])
                 url = next((s["url"] for s in subs if s.get("ext") == "json3"), None)
                 if url:
                     resp = httpx.get(url, timeout=15.0)

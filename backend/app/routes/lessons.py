@@ -8,6 +8,13 @@ from app.models.lesson import Lesson
 from app.models.user import User
 from app.schemas.lesson import LessonResponse
 from app.services.database import get_db
+from app.utils.logger import logger
+from app.services.llm_service import MIN_TRANSCRIPT_LEN, MIN_DESCRIPTION_LEN, MIN_TITLE_LEN
+
+# Minimum content thresholds — shared with generate_summary() in llm_service.py
+_MIN_TRANSCRIPT_LEN = MIN_TRANSCRIPT_LEN
+_MIN_DESCRIPTION_LEN = MIN_DESCRIPTION_LEN
+_MIN_TITLE_LEN = MIN_TITLE_LEN
 
 router = APIRouter()
 
@@ -82,14 +89,24 @@ def generate_lesson_summary(
             metadata = extract_video_metadata(lesson.video_url)
             if metadata and metadata.get("description"):
                 lesson.description = metadata["description"]
-                db.commit()
-        except Exception:
-            pass
+                try:
+                    db.commit()
+                except Exception as commit_exc:
+                    logger.warning(
+                        "Failed to persist fetched description for lesson %s: %s",
+                        lesson_id, commit_exc,
+                    )
+                    db.rollback()
+        except Exception as meta_exc:
+            logger.warning(
+                "Could not fetch video metadata for lesson %s: %s",
+                lesson_id, meta_exc,
+            )
 
     has_content = bool(
-        (lesson.transcript and len(lesson.transcript.strip()) >= 30)
-        or (lesson.description and len(lesson.description.strip()) >= 20)
-        or (lesson.title and len(lesson.title.strip()) >= 3)
+        (lesson.transcript and len(lesson.transcript.strip()) >= _MIN_TRANSCRIPT_LEN)
+        or (lesson.description and len(lesson.description.strip()) >= _MIN_DESCRIPTION_LEN)
+        or (lesson.title and len(lesson.title.strip()) >= _MIN_TITLE_LEN)
     )
 
     if not has_content:
