@@ -38,6 +38,8 @@ services:
   backend:
     image: ghcr.io/cozyneurons/youto/backend:latest
     container_name: youto-backend
+    volumes:
+      - ./app:/app/app
     ports:
       - "8000:8000"
     env_file:
