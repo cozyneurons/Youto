@@ -26,33 +26,73 @@ SUMMARY_PROMPT = (
     "Be concise and avoid filler phrases.\n\nTranscript:\n{transcript}"
 )
 
+METADATA_SUMMARY_PROMPT = (
+    "You are an expert educational tutor. A full transcript is unavailable for this video, "
+    "so summarize the lesson concepts and key takeaways in 3–5 clear, informative sentences based on "
+    "the video title and detailed overview below. Focus on what the student will learn.\n\n"
+    "Lesson Title: {title}\n"
+    "Video Overview / Description:\n{description}"
+)
 
-def generate_summary(transcript: str) -> str:
+
+def generate_summary(
+    transcript: str | None = None,
+    title: str | None = None,
+    description: str | None = None,
+    **kwargs,
+) -> str:
     """
-    Generate a plain-text summary of a video transcript.
-    Returns an empty string if the API key is missing or an error occurs.
+    Generate a plain-text summary of a video.
+    Prefers the transcript; falls back to title and description if transcript is unavailable.
+    Returns an empty string if the API key is missing or generation fails.
     """
     if not _gemini_ready:
         return ""
-    if not transcript or len(transcript.strip()) < 50:
+
+    prompt = ""
+    if transcript and len(transcript.strip()) >= 50:
+        if len(transcript) > 100000:
+            transcript = transcript[:100000]
+        prompt = SUMMARY_PROMPT.format(transcript=transcript)
+    elif description and len(description.strip()) >= 20:
+        clean_desc = description.strip()[:4000]
+        clean_title = (title or "Lesson").strip()
+        prompt = METADATA_SUMMARY_PROMPT.format(title=clean_title, description=clean_desc)
+    elif title and len(title.strip()) >= 3:
+        prompt = (
+            f"You are an educational tutor. Briefly explain the key learning objectives and concepts "
+            f"a student will learn in a lesson titled '{title.strip()}' in 2-3 concise sentences."
+        )
+    else:
         return ""
 
-    if len(transcript) > 100000:
-        raise ValueError("Transcript exceeds the maximum supported length for summarization.")
-
     try:
-        return _call_gemini(SUMMARY_PROMPT.format(transcript=transcript))
+        return _call_gemini(prompt)
     except Exception as exc:
         logger.error("Gemini summary generation failed: %s", exc)
         return ""
 
 
 def _call_gemini(prompt: str) -> str:
-    """Internal wrapper around the Gemini generative model API."""
+    """Internal wrapper around the Gemini generative model API with model fallback."""
     import google.generativeai as genai  # noqa: F811
-    model = genai.GenerativeModel("gemini-3.1-flash-lite")
-    response = model.generate_content(prompt)
-    return response.text.strip()
+    candidate_models = [
+        "gemini-3.5-flash-lite",
+        "gemini-3.8-flash",
+        "gemini-flash-latest",
+        "gemini-3.5-flash",
+    ]
+    last_err = None
+    for model_name in candidate_models:
+        try:
+            model = genai.GenerativeModel(model_name)
+            response = model.generate_content(prompt)
+            return response.text.strip()
+        except Exception as exc:
+            last_err = exc
+            logger.warning("Gemini model %s failed: %s. Trying next...", model_name, exc)
+
+    raise last_err or RuntimeError("No Gemini models succeeded")
 
 
 def generate_course_phases(playlist_title: str, video_titles: list[str]) -> list[dict]:

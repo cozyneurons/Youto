@@ -65,10 +65,36 @@ def test_generate_summary_provider_failure(monkeypatch):
         raise Exception("Provider failed")
     
     # We patch the generate_summary directly where it is defined since it is imported locally
-    monkeypatch.setattr("app.services.llm_service.generate_summary", lambda t: "")
+    monkeypatch.setattr("app.services.llm_service.generate_summary", lambda *args, **kwargs: "")
 
     resp = client.post(f"/api/lessons/{lesson_id}/generate-summary")
     
     # Should return 503 instead of 500 when generation fails
     assert resp.status_code == 503
     assert "unavailable" in resp.json()["detail"].lower()
+
+
+def test_generate_summary_fallback_to_description(monkeypatch):
+    db = TestingSession()
+    course = Course(title="Test Course 2", created_by=1)
+    db.add(course)
+    db.commit()
+
+    lesson = Lesson(
+        course_id=course.id,
+        title="Lesson Without Transcript",
+        order_index=1,
+        transcript=None,
+        description="Comprehensive overview covering all components, props, and state management techniques.",
+        duration=120
+    )
+    db.add(lesson)
+    db.commit()
+    lesson_id = lesson.id
+    db.close()
+
+    monkeypatch.setattr("app.services.llm_service.generate_summary", lambda *args, **kwargs: "Mocked AI Summary from Description")
+
+    resp = client.post(f"/api/lessons/{lesson_id}/generate-summary")
+    assert resp.status_code == 200
+    assert resp.json()["summary"] == "Mocked AI Summary from Description"

@@ -14,8 +14,12 @@ def generate_summary_task(self, lesson_id: int):
     db = SessionLocal()
     try:
         lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
-        if lesson and lesson.transcript and not lesson.summary:
-            lesson.summary = generate_summary(lesson.transcript)
+        if lesson and (lesson.transcript or lesson.description) and not lesson.summary:
+            lesson.summary = generate_summary(
+                lesson.transcript,
+                title=lesson.title,
+                description=lesson.description,
+            )
             db.commit()
     except Exception as exc:
         raise self.retry(exc=exc, countdown=2 ** self.request.retries)

@@ -65,7 +65,7 @@ def generate_lesson_summary(
     if not lesson:
         raise HTTPException(status_code=404, detail="Lesson not found")
 
-    if not lesson.transcript:
+    if not lesson.transcript and lesson.video_url:
         # If the background task hasn't finished or failed, try to fetch it synchronously
         from app.services.youtube_service import get_captions, extract_video_id_from_url
         video_id = extract_video_id_from_url(lesson.video_url)
@@ -75,8 +75,28 @@ def generate_lesson_summary(
                 lesson.transcript = transcript
                 db.commit()
 
-    if not lesson.transcript:
-        raise HTTPException(status_code=400, detail="No transcript available to summarize. The video might not have English captions.")
+    # If transcript is unavailable, ensure we have video description
+    if not lesson.transcript and not lesson.description and lesson.video_url:
+        from app.services.youtube_service import extract_video_metadata
+        try:
+            metadata = extract_video_metadata(lesson.video_url)
+            if metadata and metadata.get("description"):
+                lesson.description = metadata["description"]
+                db.commit()
+        except Exception:
+            pass
+
+    has_content = bool(
+        (lesson.transcript and len(lesson.transcript.strip()) >= 30)
+        or (lesson.description and len(lesson.description.strip()) >= 20)
+        or (lesson.title and len(lesson.title.strip()) >= 3)
+    )
+
+    if not has_content:
+        raise HTTPException(
+            status_code=400,
+            detail="No transcript or video information available to summarize.",
+        )
 
     # 2 hours = 7200 seconds. 
     # If the video is longer, we reject summarization to preserve tokens/costs.
@@ -88,7 +108,11 @@ def generate_lesson_summary(
 
     from app.services.llm_service import generate_summary
     
-    summary_text = generate_summary(lesson.transcript)
+    summary_text = generate_summary(
+        transcript=lesson.transcript,
+        title=lesson.title,
+        description=lesson.description,
+    )
     if not summary_text:
         raise HTTPException(status_code=503, detail="AI generation failed or is currently unavailable.")
 

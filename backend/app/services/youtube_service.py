@@ -68,6 +68,24 @@ def extract_playlist_info(url: str) -> Dict[str, Any]:
     }
 
 
+def _find_cookies_file() -> str | None:
+    """Find any available cookies.txt file for authenticated YouTube scraping."""
+    import os
+    from app.config import settings
+    candidates = [
+        getattr(settings, "YOUTUBE_COOKIES_PATH", None),
+        os.getenv("YOUTUBE_COOKIES_PATH"),
+        "/app/cookies.txt",
+        "/app/cookies/cookies.txt",
+        "/home/ubuntu/youto/cookies.txt",
+        "cookies.txt",
+    ]
+    for c in candidates:
+        if c and os.path.isfile(c) and os.path.getsize(c) > 0:
+            return c
+    return None
+
+
 def extract_video_metadata(url: str) -> Dict[str, Any]:
     """Return full metadata dict for a single YouTube video. Uses official API if available to bypass yt-dlp rate limits."""
     from app.config import settings
@@ -91,9 +109,16 @@ def extract_video_metadata(url: str) -> Dict[str, Any]:
         except Exception as e:
             logger.warning("YouTube Data API failed for %s: %s", video_id, e)
             
+    cookies_file = _find_cookies_file()
     ydl_opts = {"quiet": True, "no_warnings": True, "skip_download": True}
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        return ydl.extract_info(url, download=False) or {}
+    if cookies_file:
+        ydl_opts["cookiefile"] = cookies_file
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            return ydl.extract_info(url, download=False) or {}
+    except Exception as e:
+        logger.warning("yt-dlp extract_video_metadata failed for %s: %s", url, e)
+        return {}
 
 
 def get_captions(video_id: str) -> str:
@@ -103,9 +128,13 @@ def get_captions(video_id: str) -> str:
     If that fails due to YouTube consent/bot walls, it falls back to parsing JSON3 via yt-dlp.
     Returns the raw text, or an empty string if unavailable.
     """
+    cookies_file = _find_cookies_file()
     try:
         from youtube_transcript_api import YouTubeTranscriptApi
-        transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+        kwargs = {}
+        if cookies_file:
+            kwargs["cookies"] = cookies_file
+        transcript_list = YouTubeTranscriptApi.list_transcripts(video_id, **kwargs)
         
         try:
             transcript = transcript_list.find_transcript(['en', 'en-US', 'en-GB'])
@@ -114,36 +143,38 @@ def get_captions(video_id: str) -> str:
             transcript = first_available.translate('en')
 
         data = transcript.fetch()
-        return " ".join([t['text'] for t in data]).replace("\n", " ")
+        text = " ".join([t['text'] for t in data if t.get('text')]).replace("\n", " ").strip()
+        if text:
+            return text
     except Exception as exc:
         logger.warning("youtube-transcript-api failed for %s: %s. Attempting yt-dlp fallback...", video_id, exc)
         try:
             import yt_dlp
             import httpx
             ydl_opts = {
-                'quiet': True, 
-                'no_warnings': True,
-                'skip_download': True, 
-                'writeautomaticsub': True,
-                'writesubtitles': True,
-                'subtitleslangs': ['en', 'en-US', 'en-GB'], 
-                'subtitlesformat': 'json3'
+                "quiet": True,
+                "no_warnings": True,
+                "skip_download": True,
+                "writeautomaticsub": True,
+                "writesubtitles": True,
+                "subtitleslangs": ["en", "en-US", "en-GB"],
+                "subtitlesformat": "json3",
             }
+            if cookies_file:
+                ydl_opts["cookiefile"] = cookies_file
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(f"https://www.youtube.com/watch?v={video_id}", download=False)
-                
-                # Check manual subtitles first, then automatic
-                subs = info.get('subtitles', {}).get('en', [])
+                subs = info.get("subtitles", {}).get("en", [])
                 if not subs:
-                    subs = info.get('automatic_captions', {}).get('en', [])
-                
-                url = next((s['url'] for s in subs if s['ext'] == 'json3'), None)
+                    subs = info.get("automatic_captions", {}).get("en", [])
+                url = next((s["url"] for s in subs if s.get("ext") == "json3"), None)
                 if url:
                     resp = httpx.get(url, timeout=15.0)
-                    data = resp.json()
-                    events = data.get('events', [])
-                    text = ' '.join([''.join([seg.get('utf8', '') for seg in ev.get('segs', [])]) for ev in events])
-                    return text.replace('\n', ' ').strip()
+                    if resp.status_code == 200 and resp.text:
+                        data = resp.json()
+                        events = data.get("events", [])
+                        text = " ".join(["".join([seg.get("utf8", "") for seg in ev.get("segs", [])]) for ev in events])
+                        return text.replace("\n", " ").strip()
         except Exception as yt_exc:
             logger.error("yt-dlp fallback failed for %s: %s", video_id, yt_exc)
             
@@ -155,8 +186,10 @@ def get_thumbnail(video_id: str) -> str:
     return f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg"
 
 
-def extract_video_id_from_url(url: str) -> str:
+def extract_video_id_from_url(url: str | None) -> str:
     """Parse a YouTube video ID from various URL formats."""
+    if not url:
+        return ""
     patterns = [
         r"(?:v=|youtu\.be/|embed/|shorts/|live/)([a-zA-Z0-9_-]{11})",
     ]
